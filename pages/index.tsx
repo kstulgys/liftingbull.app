@@ -204,7 +204,7 @@ function DrawerExample() {
 }
 
 function DrawerAcordion() {
-  const [units, setUnits] = useState<"kg" | "lbs">("kg");
+  const [units, setUnits] = useState<any>("kg");
   const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore((store) => store);
 
   return (
