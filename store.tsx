@@ -19,7 +19,7 @@ const defaultOneRepMaxProps = [
 
 interface State {
   oneRepMax: any[];
-  oneRepMaxProps: { id: number; rpe: number; reps: number; weight: number }[];
+  oneRepMaxProps: { id: any; rpe: number; reps: number; weight: number }[];
   warmupSets: { id: any; percent: number; reps: number }[];
   currentWorkout: any[];
 }

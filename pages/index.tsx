@@ -34,6 +34,7 @@ export default function IndexPage() {
   } = useStore((store) => store);
 
   useEffect(() => {
+    if (typeof window === undefined) return;
     getOneRepMaxProps();
     getWarmupSets();
     getOneRepMax();
