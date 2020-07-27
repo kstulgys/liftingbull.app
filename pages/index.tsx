@@ -19,7 +19,7 @@ import {
   AccordionIcon,
   Select,
   Icon,
-  IconButton,
+  IconButton
 } from "@chakra-ui/core";
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
@@ -30,8 +30,8 @@ export default function IndexPage() {
     getWarmupSets,
     getOneRepMax,
     addWorkout,
-    getCurrentWorkout,
-  } = useStore((store) => store);
+    getCurrentWorkout
+  } = useStore(store => store);
 
   useEffect(() => {
     if (typeof window === undefined) return;
@@ -42,12 +42,12 @@ export default function IndexPage() {
   }, []);
 
   return (
-    <Stack maxW='sm' width='full' mx='auto' minH='100vh' p='4'>
-      <Box ml='auto'>
+    <Stack maxW="sm" width="full" mx="auto" minH="100vh" p="4">
+      <Box ml="auto">
         <DrawerExample />
       </Box>
       <WorkoutCardList />
-      <Stack mt='4'>
+      <Stack mt="4">
         <Button onClick={addWorkout}>Add workout</Button>
       </Stack>
     </Stack>
@@ -60,19 +60,27 @@ function WorkoutCardList() {
     oneRepMaxProps,
     removeWorkout,
     addWorkoutSet,
-    removeWorkoutSet,
-  } = useStore((store) => store);
+    removeWorkoutSet
+  } = useStore(store => store);
 
   return (
-    <Stack spacing='4'>
-      {currentWorkout.map((workout) => {
+    <Stack spacing="4">
+      {currentWorkout.map(workout => {
         return (
-          <Stack key={workout.id} p='1' bg='white' borderRadius='md' boxShadow='md'>
+          <Stack
+            key={workout.id}
+            p="1"
+            bg="white"
+            borderRadius="md"
+            boxShadow="md"
+          >
             <Stack isInline>
-              <Box>
-                <Button onClick={() => removeWorkout(workout.id)}>-</Button>
+              <Box flex="0.5">
+                <Button width="full" onClick={() => addWorkoutSet(workout.id)}>
+                  +
+                </Button>
               </Box>
-              <Box width='full'>
+              <Box flex="1">
                 <Select>
                   {oneRepMaxProps.map(({ name }) => (
                     <option key={name} value={name}>
@@ -81,40 +89,56 @@ function WorkoutCardList() {
                   ))}
                 </Select>
               </Box>
-              <Box>
-                <Button onClick={() => addWorkoutSet(workout.id)}>+</Button>
+              <Box flex="0.5">
+                <Button
+                  width="full"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this workout?"
+                      )
+                    ) {
+                      removeWorkout(workout.id);
+                    }
+                  }}
+                >
+                  x
+                </Button>
               </Box>
             </Stack>
             <Stack>
               {workout.sets.map(({ rpe, reps, id }, idx) => {
                 return (
-                  <Stack key={id} isInline alignItems='center'>
-                    <Box flex='0.5'>
-                      <Text textAlign='center'>{idx + 1}.</Text>
+                  <Stack key={id} isInline alignItems="center">
+                    <Box flex="0.5">
+                      <Text textAlign="center">{idx + 1}.</Text>
                     </Box>
-                    <Box flex='1'>
+                    <Box flex="1">
                       <Select defaultValue={rpe}>
-                        {getRpeList().map((num) => (
+                        {getRpeList().map(num => (
                           <option key={num} value={num}>
                             {num}
                           </option>
                         ))}
                       </Select>
                     </Box>
-                    <Box flex='1'>
+                    <Box flex="1">
                       <Select defaultValue={reps}>
-                        {getRepsList().map((num) => (
+                        {getRepsList().map(num => (
                           <option key={num} value={num}>
                             {num}
                           </option>
                         ))}
                       </Select>
                     </Box>
-                    <Box flex='0.7'>
-                      <Text textAlign='center'>225</Text>
+                    <Box flex="0.7">
+                      <Text textAlign="center">225</Text>
                     </Box>
-                    <Box flex='0.5'>
-                      <Button width='full' onClick={() => removeWorkoutSet(workout.id, idx)}>
+                    <Box flex="0.5">
+                      <Button
+                        width="full"
+                        onClick={() => removeWorkoutSet(workout.id, idx)}
+                      >
                         -
                       </Button>
                     </Box>
@@ -137,28 +161,30 @@ function WorkoutSets() {
     <Accordion allowToggle defaultIndex={[999]} allowMultiple>
       <AccordionItem>
         <AccordionHeader>
-          <Box flex='1' textAlign='left'>
+          <Box flex="1" textAlign="left">
             Warmup sets
           </Box>
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
       <AccordionItem>
         <AccordionHeader>
-          <Box flex='1' textAlign='left'>
+          <Box flex="1" textAlign="left">
             Work sets plates
           </Box>
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
@@ -171,24 +197,30 @@ function DrawerExample() {
 
   return (
     <>
-      <Button variant='ghost' onClick={onOpen} ref={btnRef}>
-        <Icon name='drag-handle' transform='rotate(90deg)' size='10' />
+      <Button variant="ghost" onClick={onOpen} ref={btnRef}>
+        <Icon name="drag-handle" transform="rotate(90deg)" size="10" />
       </Button>
-      <Drawer size='sm' isOpen={isOpen} placement='right' onClose={onClose} finalFocusRef={btnRef}>
+      <Drawer
+        size="sm"
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+      >
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerCloseButton size='lg' mt='2' mr='1' />
+          <DrawerCloseButton size="lg" mt="2" mr="1" />
 
-          <DrawerBody m='0' px='0' mt='16'>
+          <DrawerBody m="0" px="0" mt="16">
             <DrawerAcordion />
           </DrawerBody>
 
           <DrawerFooter>
-            <Button variant='outline' mr={3} onClick={onClose}>
+            <Button variant="outline" mr={3} onClick={onClose}>
               Cancel
             </Button>
             <Button
-              color='blue'
+              color="blue"
               onClick={() => {
                 window.localStorage.clear();
                 window.location.reload();
@@ -205,75 +237,83 @@ function DrawerExample() {
 
 function DrawerAcordion() {
   const [units, setUnits] = useState<any>("kg");
-  const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore((store) => store);
+  const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore(
+    store => store
+  );
 
   return (
-    <Accordion defaultIndex={[0]} allowToggle>
+    <Accordion defaultIndex={[999]} allowToggle>
       <AccordionItem>
         <AccordionHeader>
-          <Box flex='1' textAlign='left' fontSize='2xl' fontWeight='bold'>
+          <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
             One Rep Max
           </Box>
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          <Stack isInline fontWeight='semibold' mb='2'>
-            <Box flex='0.6'>
+          <Stack isInline fontWeight="bold" mb="2" fontSize="sm">
+            <Box flex="0.6">
               <Text>NAME</Text>
             </Box>
-            <Box flex='1'>
-              <Text textAlign='center'>RPE</Text>
+            <Box flex="1">
+              <Text textAlign="center">RPE</Text>
             </Box>
-            <Box flex='1'>
-              <Text textAlign='center'>REPS</Text>
+            <Box flex="1">
+              <Text textAlign="center">REPS</Text>
             </Box>
-            <Box flex='1'>
-              <Text textAlign='center'>Weight</Text>
+            <Box flex="1">
+              <Text textAlign="center">WEIGHT</Text>
             </Box>
-            <Box flex='0.6'>
-              <Text textAlign='end'>1RM</Text>
+            <Box flex="0.6">
+              <Text textAlign="end">1RM</Text>
             </Box>
           </Stack>
 
           {oneRepMaxProps.map(({ name: _name, id, rpe, reps, weight }) => {
             const oneRm = oneRepMax.find(({ name }) => name === _name).weight;
             return (
-              <Stack key={id} isInline alignItems='center' spacing='1' mt='1'>
-                <Box flex='0.6'>
-                  <Text textAlign='start'>{_name}</Text>
+              <Stack key={id} isInline alignItems="center" spacing="1" mt="1">
+                <Box flex="0.6">
+                  <Text textAlign="start">{_name}</Text>
                 </Box>
-                <Box flex='1'>
+                <Box flex="1">
                   <Select
                     defaultValue={rpe}
-                    onChange={(e) => updateOneRepMaxProps(_name, "rpe", e.target.value)}
+                    onChange={e =>
+                      updateOneRepMaxProps(_name, "rpe", e.target.value)
+                    }
                   >
-                    {getRpeList().map((num) => (
+                    {getRpeList().map(num => (
                       <option value={num}> {num}</option>
                     ))}
                   </Select>
                 </Box>
-                <Box flex='1'>
+                <Box flex="1">
                   <Select
                     defaultValue={reps}
-                    onChange={(e) => updateOneRepMaxProps(_name, "reps", e.target.value)}
+                    onChange={e =>
+                      updateOneRepMaxProps(_name, "reps", e.target.value)
+                    }
                   >
-                    {getRepsList().map((num) => (
+                    {getRepsList().map(num => (
                       <option value={num}> {num}</option>
                     ))}
                   </Select>
                 </Box>
-                <Box flex='1'>
+                <Box flex="1">
                   <Select
                     defaultValue={weight}
-                    onChange={(e) => updateOneRepMaxProps(_name, "weight", e.target.value)}
+                    onChange={e =>
+                      updateOneRepMaxProps(_name, "weight", e.target.value)
+                    }
                   >
-                    {getWeightNumbers().map((num) => (
+                    {getWeightNumbers().map(num => (
                       <option value={num}> {num}</option>
                     ))}
                   </Select>
                 </Box>
-                <Box flex='0.6'>
-                  <Text textAlign='end'>{oneRm}</Text>
+                <Box flex="0.6">
+                  <Text textAlign="end">{oneRm}</Text>
                 </Box>
               </Stack>
             );
@@ -283,35 +323,39 @@ function DrawerAcordion() {
 
       <AccordionItem>
         <AccordionHeader>
-          <Box flex='1' textAlign='left' fontSize='2xl' fontWeight='bold'>
+          <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
             Variants
           </Box>
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
 
       <AccordionItem>
         <AccordionHeader>
-          <Box flex='1' textAlign='left' fontSize='2xl' fontWeight='bold'>
+          <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
             Settings
           </Box>
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          <Stack spacing='4'>
-            <Stack isInline alignItems='center'>
+          <Stack spacing="4">
+            <Stack isInline alignItems="center">
               <Box>
-                <Text fontSize='xl'>Units</Text>
+                <Text fontSize="xl">Units</Text>
               </Box>
-              <Box width='25%' ml='auto'>
-                <Select defaultValue={units} onChange={(e) => setUnits(e.target.value)}>
-                  <option value='kg'>kg</option>
-                  <option value='lbs'>lbs</option>
+              <Box width="25%" ml="auto">
+                <Select
+                  defaultValue={units}
+                  onChange={e => setUnits(e.target.value)}
+                >
+                  <option value="kg">kg</option>
+                  <option value="lbs">lbs</option>
                 </Select>
               </Box>
             </Stack>
@@ -332,7 +376,7 @@ function DrawerAcordion() {
             </Stack> */}
             <Stack>
               <Box>
-                <Text fontSize='xl'>Warmup sets</Text>
+                <Text fontSize="xl">Warmup sets</Text>
               </Box>
               <WarmupSets />
             </Stack>
@@ -344,54 +388,59 @@ function DrawerAcordion() {
 }
 
 function WarmupSets() {
-  const { warmupSets, updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store);
+  const {
+    warmupSets,
+    updateWarmupSet,
+    addWarmupSet,
+    removeWarmupSet
+  } = useStore(store => store);
 
   return (
     <Stack>
-      <Stack isInline fontWeight='bold' fontSize='sm'>
-        <Box flex='0.3'>
+      <Stack isInline fontWeight="bold" fontSize="sm">
+        <Box flex="0.3">
           <Text>SET</Text>
         </Box>
-        <Box flex='1'>
-          <Text textAlign='center'>PERCENT</Text>
+        <Box flex="1">
+          <Text textAlign="center">PERCENT</Text>
         </Box>
-        <Box flex='1'>
-          <Text textAlign='center'>REPS</Text>
+        <Box flex="1">
+          <Text textAlign="center">REPS</Text>
         </Box>
-        <Box flex='0.3' />
+        <Box flex="0.3" />
       </Stack>
       {warmupSets.map(({ percent, reps, id }, idx) => {
         return (
-          <Stack key={id} isInline alignItems='center'>
-            <Box flex='0.3'>
+          <Stack key={id} isInline alignItems="center">
+            <Box flex="0.3">
               <Text>{idx + 1}.</Text>
             </Box>
-            <Box flex='1'>
+            <Box flex="1">
               <Box>
                 <Select
                   defaultValue={percent}
-                  onChange={(e) => updateWarmupSet(id, "percent", e.target.value)}
+                  onChange={e => updateWarmupSet(id, "percent", e.target.value)}
                 >
-                  {getWeightPercents().map((num) => (
+                  {getWeightPercents().map(num => (
                     <option value={num}>{Math.round(num * 100)}</option>
                   ))}
                 </Select>
               </Box>
             </Box>
-            <Box flex='1'>
+            <Box flex="1">
               <Box>
                 <Select
                   defaultValue={reps}
-                  onChange={(e) => updateWarmupSet(id, "reps", e.target.value)}
+                  onChange={e => updateWarmupSet(id, "reps", e.target.value)}
                 >
-                  {getRepsNumbers().map((num) => (
+                  {getRepsNumbers().map(num => (
                     <option value={num}>{num}</option>
                   ))}
                 </Select>
               </Box>
             </Box>
-            <Box flex='0.3'>
-              <Button width='full' onClick={() => removeWarmupSet(id)}>
+            <Box flex="0.3">
+              <Button width="full" onClick={() => removeWarmupSet(id)}>
                 -
               </Button>
             </Box>
@@ -399,7 +448,7 @@ function WarmupSets() {
         );
       })}
 
-      <Box ml='auto'>
+      <Box ml="auto">
         <Button onClick={addWarmupSet}>Add</Button>
       </Box>
     </Stack>
@@ -417,7 +466,10 @@ function getWeightPercents() {
     .fill(null)
     .map((_, idx) => {
       const numString = idx + 1 + "";
-      if (numString[numString.length - 1] === "0" || numString[numString.length - 1] === "5") {
+      if (
+        numString[numString.length - 1] === "0" ||
+        numString[numString.length - 1] === "5"
+      ) {
         return (idx + 1) / 100;
       }
     })
