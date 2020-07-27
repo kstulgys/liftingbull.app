@@ -19,27 +19,21 @@ import {
   AccordionIcon,
   Select,
   Icon,
-  IconButton
-} from "@chakra-ui/core";
-import { useEffect, useRef, useState } from "react";
-import { useStore } from "../store";
+  IconButton,
+} from '@chakra-ui/core'
+import { useEffect, useRef, useState } from 'react'
+import { useStore } from '../utils/store'
 
 export default function IndexPage() {
-  const {
-    getOneRepMaxProps,
-    getWarmupSets,
-    getOneRepMax,
-    addWorkout,
-    getCurrentWorkout
-  } = useStore(store => store);
+  const { getOneRepMaxProps, getWarmupSets, getOneRepMax, addWorkout, getCurrentWorkout } = useStore((store) => store)
 
   useEffect(() => {
-    if (typeof window === undefined) return;
-    getOneRepMaxProps();
-    getWarmupSets();
-    getOneRepMax();
-    getCurrentWorkout();
-  }, []);
+    if (typeof window === undefined) return
+    getOneRepMaxProps()
+    getWarmupSets()
+    getOneRepMax()
+    getCurrentWorkout()
+  }, [])
 
   return (
     <Stack maxW="sm" width="full" mx="auto" minH="100vh" p="4">
@@ -48,32 +42,22 @@ export default function IndexPage() {
       </Box>
       <WorkoutCardList />
       <Stack mt="4">
-        <Button onClick={addWorkout} size='lg'>Add workout</Button>
+        <Button onClick={addWorkout} size="lg">
+          Add workout
+        </Button>
       </Stack>
     </Stack>
-  );
+  )
 }
 
 function WorkoutCardList() {
-  const {
-    currentWorkout,
-    oneRepMaxProps,
-    removeWorkout,
-    addWorkoutSet,
-    removeWorkoutSet
-  } = useStore(store => store);
+  const { currentWorkout, oneRepMaxProps, removeWorkout, addWorkoutSet, removeWorkoutSet } = useStore((store) => store)
 
   return (
     <Stack spacing="4">
-      {currentWorkout.map(workout => {
+      {currentWorkout.map((workout) => {
         return (
-          <Stack
-            key={workout.id}
-            p="1"
-            bg="white"
-            borderRadius="md"
-            boxShadow="md"
-          >
+          <Stack key={workout.id} p="1" bg="white" borderRadius="md" boxShadow="md">
             <Stack isInline>
               <Box flex="0.5">
                 <Button width="full" onClick={() => addWorkoutSet(workout.id)}>
@@ -93,13 +77,7 @@ function WorkoutCardList() {
                 <Button
                   width="full"
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this workout?"
-                      )
-                    ) {
-                      removeWorkout(workout.id);
-                    }
+                    if (window.confirm('Are you sure you want to delete this workout?')) removeWorkout(workout.id)
                   }}
                 >
                   x
@@ -115,7 +93,7 @@ function WorkoutCardList() {
                     </Box>
                     <Box flex="1">
                       <Select defaultValue={rpe}>
-                        {getRpeList().map(num => (
+                        {getRpeList().map((num) => (
                           <option key={num} value={num}>
                             {num}
                           </option>
@@ -124,7 +102,7 @@ function WorkoutCardList() {
                     </Box>
                     <Box flex="1">
                       <Select defaultValue={reps}>
-                        {getRepsList().map(num => (
+                        {getRepsList().map((num) => (
                           <option key={num} value={num}>
                             {num}
                           </option>
@@ -135,25 +113,22 @@ function WorkoutCardList() {
                       <Text textAlign="center">225</Text>
                     </Box>
                     <Box flex="0.5">
-                      <Button
-                        width="full"
-                        onClick={() => removeWorkoutSet(workout.id, idx)}
-                      >
+                      <Button width="full" onClick={() => removeWorkoutSet(workout.id, idx)}>
                         -
                       </Button>
                     </Box>
                   </Stack>
-                );
+                )
               })}
             </Stack>
             <Stack>
               <WorkoutSets />
             </Stack>
           </Stack>
-        );
+        )
       })}
     </Stack>
-  );
+  )
 }
 
 function WorkoutSets() {
@@ -167,10 +142,8 @@ function WorkoutSets() {
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
       <AccordionItem>
@@ -181,32 +154,24 @@ function WorkoutSets() {
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
-  );
+  )
 }
 
 function DrawerExample() {
-  const { isOpen, onOpen, onClose } = useDisclosure(false);
-  const btnRef = useRef();
+  const { isOpen, onOpen, onClose } = useDisclosure(false)
+  const btnRef = useRef()
 
   return (
     <>
       <Button variant="ghost" onClick={onOpen} ref={btnRef}>
         <Icon name="drag-handle" transform="rotate(90deg)" size="10" />
       </Button>
-      <Drawer
-        size="sm"
-        isOpen={isOpen}
-        placement="right"
-        onClose={onClose}
-        finalFocusRef={btnRef}
-      >
+      <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={btnRef}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton size="lg" mt="2" mr="1" />
@@ -222,8 +187,8 @@ function DrawerExample() {
             <Button
               color="blue"
               onClick={() => {
-                window.localStorage.clear();
-                window.location.reload();
+                window.localStorage.clear()
+                window.location.reload()
               }}
             >
               Reset
@@ -232,14 +197,12 @@ function DrawerExample() {
         </DrawerContent>
       </Drawer>
     </>
-  );
+  )
 }
 
 function DrawerAcordion() {
-  const [units, setUnits] = useState<any>("kg");
-  const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore(
-    store => store
-  );
+  const [units, setUnits] = useState<any>('kg')
+  const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore((store) => store)
 
   return (
     <Accordion defaultIndex={[999]} allowToggle>
@@ -270,45 +233,36 @@ function DrawerAcordion() {
           </Stack>
 
           {oneRepMaxProps.map(({ name: _name, id, rpe, reps, weight }) => {
-            const oneRm = oneRepMax.find(({ name }) => name === _name).weight;
+            const oneRm = oneRepMax.find(({ name }) => name === _name).weight
             return (
               <Stack key={id} isInline alignItems="center" spacing="1" mt="1">
                 <Box flex="0.6">
                   <Text textAlign="start">{_name}</Text>
                 </Box>
                 <Box flex="1">
-                  <Select
-                    defaultValue={rpe}
-                    onChange={e =>
-                      updateOneRepMaxProps(_name, "rpe", e.target.value)
-                    }
-                  >
-                    {getRpeList().map(num => (
-                      <option value={num}> {num}</option>
+                  <Select defaultValue={rpe} onChange={(e) => updateOneRepMaxProps(_name, 'rpe', e.target.value)}>
+                    {getRpeList().map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </Select>
                 </Box>
                 <Box flex="1">
-                  <Select
-                    defaultValue={reps}
-                    onChange={e =>
-                      updateOneRepMaxProps(_name, "reps", e.target.value)
-                    }
-                  >
-                    {getRepsList().map(num => (
-                      <option value={num}> {num}</option>
+                  <Select defaultValue={reps} onChange={(e) => updateOneRepMaxProps(_name, 'reps', e.target.value)}>
+                    {getRepsList().map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </Select>
                 </Box>
                 <Box flex="1">
-                  <Select
-                    defaultValue={weight}
-                    onChange={e =>
-                      updateOneRepMaxProps(_name, "weight", e.target.value)
-                    }
-                  >
-                    {getWeightNumbers().map(num => (
-                      <option value={num}> {num}</option>
+                  <Select defaultValue={weight} onChange={(e) => updateOneRepMaxProps(_name, 'weight', e.target.value)}>
+                    {getWeightNumbers().map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </Select>
                 </Box>
@@ -316,7 +270,7 @@ function DrawerAcordion() {
                   <Text textAlign="end">{oneRm}</Text>
                 </Box>
               </Stack>
-            );
+            )
           })}
         </AccordionPanel>
       </AccordionItem>
@@ -329,10 +283,8 @@ function DrawerAcordion() {
           <AccordionIcon />
         </AccordionHeader>
         <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </AccordionPanel>
       </AccordionItem>
 
@@ -350,10 +302,7 @@ function DrawerAcordion() {
                 <Text fontSize="xl">Units</Text>
               </Box>
               <Box width="25%" ml="auto">
-                <Select
-                  defaultValue={units}
-                  onChange={e => setUnits(e.target.value)}
-                >
+                <Select defaultValue={units} onChange={(e) => setUnits(e.target.value)}>
                   <option value="kg">kg</option>
                   <option value="lbs">lbs</option>
                 </Select>
@@ -384,16 +333,11 @@ function DrawerAcordion() {
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
-  );
+  )
 }
 
 function WarmupSets() {
-  const {
-    warmupSets,
-    updateWarmupSet,
-    addWarmupSet,
-    removeWarmupSet
-  } = useStore(store => store);
+  const { warmupSets, updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store)
 
   return (
     <Stack>
@@ -417,24 +361,22 @@ function WarmupSets() {
             </Box>
             <Box flex="1">
               <Box>
-                <Select
-                  defaultValue={percent}
-                  onChange={e => updateWarmupSet(id, "percent", e.target.value)}
-                >
-                  {getWeightPercents().map(num => (
-                    <option value={num}>{Math.round(num * 100)}</option>
+                <Select defaultValue={percent} onChange={(e) => updateWarmupSet(id, 'percent', e.target.value)}>
+                  {getWeightPercents().map((num) => (
+                    <option key={num} value={num}>
+                      {Math.round(num * 100)}
+                    </option>
                   ))}
                 </Select>
               </Box>
             </Box>
             <Box flex="1">
               <Box>
-                <Select
-                  defaultValue={reps}
-                  onChange={e => updateWarmupSet(id, "reps", e.target.value)}
-                >
-                  {getRepsNumbers().map(num => (
-                    <option value={num}>{num}</option>
+                <Select defaultValue={reps} onChange={(e) => updateWarmupSet(id, 'reps', e.target.value)}>
+                  {getRepsNumbers().map((num) => (
+                    <option key={num} value={num}>
+                      {num}
+                    </option>
                   ))}
                 </Select>
               </Box>
@@ -445,48 +387,45 @@ function WarmupSets() {
               </Button>
             </Box>
           </Stack>
-        );
+        )
       })}
 
       <Box ml="auto">
         <Button onClick={addWarmupSet}>Add</Button>
       </Box>
     </Stack>
-  );
+  )
 }
 
 function getRepsNumbers() {
   return Array(20)
     .fill(null)
-    .map((_, idx) => idx + 1);
+    .map((_, idx) => idx + 1)
 }
 
 function getWeightPercents() {
   const array = Array(110)
     .fill(null)
     .map((_, idx) => {
-      const numString = idx + 1 + "";
-      if (
-        numString[numString.length - 1] === "0" ||
-        numString[numString.length - 1] === "5"
-      ) {
-        return (idx + 1) / 100;
+      const numString = idx + 1 + ''
+      if (numString[numString.length - 1] === '0' || numString[numString.length - 1] === '5') {
+        return (idx + 1) / 100
       }
     })
-    .filter(Boolean);
-  return [0, ...array];
+    .filter(Boolean)
+  return [0, ...array]
 }
 
 function getWeightNumbers() {
   return Array(1000)
     .fill(null)
-    .map((_, idx) => idx + 1);
+    .map((_, idx) => idx + 1)
 }
 
 function getRpeList() {
-  return [6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+  return [6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
 }
 
 function getRepsList() {
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 }

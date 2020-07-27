@@ -23,4 +23,4 @@ export const lookupTable = {
   //   0.599,
   //   0.572
   // ]
-};
+}

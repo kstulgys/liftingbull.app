@@ -1,27 +1,41 @@
 {
-  "name": "liftingbull",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "next",
-    "build": "next build",
-    "start": "next start",
-    "export": "next export",
-    "deploy": "npm run build && npm run export"
-  },
-  "dependencies": {
-    "@chakra-ui/core": "0.8.0",
-    "@emotion/core": "10.0.28",
-    "@emotion/styled": "10.0.27",
-    "@types/node": "14.0.26",
-    "emotion-theming": "10.0.27",
-    "next": "9.4.4",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "typescript": "3.9.7",
-    "uuid": "^8.2.0",
-    "zustand": "^2.2.3"
-  },
-  "license": "ISC",
-  "keywords": [],
-  "description": ""
+    "name": "liftingbull",
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "next",
+        "build": "next build",
+        "start": "next start",
+        "export": "next export",
+        "deploy": "npm run build && npm run export",
+        "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
+    },
+    "dependencies": {
+        "@chakra-ui/core": "0.8.0",
+        "@emotion/core": "10.0.28",
+        "@emotion/styled": "10.0.27",
+        "@types/node": "^14.0.26",
+        "@types/uuid": "^8.0.0",
+        "emotion-theming": "10.0.27",
+        "next": "9.4.4",
+        "react": "16.13.1",
+        "react-dom": "16.13.1",
+        "typescript": "^3.9.7",
+        "uuid": "^8.2.0",
+        "zustand": "^2.2.3"
+    },
+    "license": "ISC",
+    "keywords": [],
+    "description": "",
+    "devDependencies": {
+        "@types/react": "^16.9.43",
+        "@typescript-eslint/eslint-plugin": "^3.7.0",
+        "@typescript-eslint/parser": "^3.7.0",
+        "eslint": "^7.5.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-jsx-a11y": "^6.3.1",
+        "eslint-plugin-prettier": "^3.1.4",
+        "eslint-plugin-react": "^7.20.4",
+        "eslint-plugin-react-hooks": "^4.0.8",
+        "prettier": "^2.0.5"
+    }
 }
