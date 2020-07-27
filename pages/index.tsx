@@ -48,7 +48,7 @@ export default function IndexPage() {
       </Box>
       <WorkoutCardList />
       <Stack mt="4">
-        <Button onClick={addWorkout}>Add workout</Button>
+        <Button onClick={addWorkout} size='lg'>Add workout</Button>
       </Stack>
     </Stack>
   );
