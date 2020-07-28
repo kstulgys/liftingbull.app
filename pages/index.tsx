@@ -22,30 +22,34 @@ import {
   IconButton,
 } from '@chakra-ui/core'
 import { useEffect, useRef, useState } from 'react'
-import { useStore } from '../utils/store'
+import { useStore, useStoreTwo } from '../utils/store'
 
 export default function IndexPage() {
-  const { getOneRepMaxProps, getWarmupSets, getOneRepMax, addWorkout, getCurrentWorkout } = useStore((store) => store)
+  const { getOneRepMaxProps, bootstrapState, getOneRepMax } = useStore((store) => store.actions)
+  const { oneRepMaxProps } = useStore((store) => store)
 
   useEffect(() => {
-    if (typeof window === undefined) return
-    getOneRepMaxProps()
-    getWarmupSets()
-    getOneRepMax()
-    getCurrentWorkout()
+    bootstrapState()
   }, [])
+
+  useEffect(() => {
+    getOneRepMax()
+  }, [oneRepMaxProps])
 
   return (
     <Stack maxW="sm" width="full" mx="auto" minH="100vh" p="4">
-      <Box ml="auto">
+      <Text>hi</Text>
+      {/* <Box ml="auto">
         <DrawerExample />
+        {text}
+        <Button onClick={() => setText('somethinbg')}>Set</Button>
       </Box>
       <WorkoutCardList />
       <Stack mt="4">
         <Button onClick={addWorkout} size="lg">
           Add workout
         </Button>
-      </Stack>
+      </Stack> */}
     </Stack>
   )
 }
