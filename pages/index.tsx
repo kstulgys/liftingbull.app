@@ -20,49 +20,49 @@ import {
   Select,
   Icon,
   IconButton,
+  Flex,
+  Checkbox,
 } from '@chakra-ui/core'
+
 import { useEffect, useRef, useState } from 'react'
-import { useStore, useStoreTwo } from '../utils/store'
+import { calcOneRepMaxKg, getPlatesOnBar, getWorksetWeight, writeStorage } from '../utils'
+import { useStore } from '../utils/store'
 
 export default function IndexPage() {
+  const { initializeState, addWorkout } = useStore((store) => store.actions)
   useSyncStorage()
-  const { initializeState, getOneRepMax } = useStore((store) => store.actions)
-  const { oneRepMaxProps } = useStore((store) => store)
 
   useEffect(() => {
     initializeState()
   }, [])
 
-  useEffect(() => {
-    getOneRepMax()
-  }, [oneRepMaxProps])
-
   return (
-    <Stack maxW="sm" width="full" mx="auto" minH="100vh" p="4">
-      <Box ml="auto">
-        <DrawerExample />
-      </Box>
-      {/* <WorkoutCardList />
-      <Stack mt="4">
-        <Button onClick={addWorkout} size="lg">
-          Add workout
-        </Button>
-      </Stack> */}
+    <Stack bg="gray.800">
+      <Stack shouldWrapChildren maxW="sm" width="full" mx="auto" minH="100vh" p="4">
+        <AppDrawer />
+        <ExerciseList />
+        <Stack mt="4">
+          <Button onClick={addWorkout} size="lg">
+            Add workout
+          </Button>
+        </Stack>
+      </Stack>
     </Stack>
   )
 }
 
-function WorkoutCardList() {
-  const { currentWorkout, oneRepMaxProps, removeWorkout, addWorkoutSet, removeWorkoutSet } = useStore((store) => store)
+function ExerciseList() {
+  const { currentWorkoutProps, oneRepMaxProps } = useStore((store) => store)
+  const { removeWorkout, addWorkoutSet } = useStore((store) => store.actions)
 
   return (
     <Stack spacing="4">
-      {currentWorkout.map((workout) => {
+      {currentWorkoutProps?.map((exercise, idx) => {
         return (
-          <Stack key={workout.id} p="1" bg="white" borderRadius="md" boxShadow="md">
+          <Stack key={exercise.id} p="1" bg="white" borderRadius="md" boxShadow="md">
             <Stack isInline>
               <Box flex="0.5">
-                <Button width="full" onClick={() => addWorkoutSet(workout.id)}>
+                <Button width="full" onClick={() => addWorkoutSet(idx)}>
                   +
                 </Button>
               </Box>
@@ -79,53 +79,15 @@ function WorkoutCardList() {
                 <Button
                   width="full"
                   onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this workout?')) removeWorkout(workout.id)
+                    if (window.confirm('Are you sure you want to delete this workout?')) removeWorkout(exercise.id)
                   }}
                 >
                   x
                 </Button>
               </Box>
             </Stack>
-            <Stack>
-              {workout.sets.map(({ rpe, reps, id }, idx) => {
-                return (
-                  <Stack key={id} isInline alignItems="center">
-                    <Box flex="0.5">
-                      <Text textAlign="center">{idx + 1}.</Text>
-                    </Box>
-                    <Box flex="1">
-                      <Select defaultValue={rpe}>
-                        {getRpeList().map((num) => (
-                          <option key={num} value={num}>
-                            {num}
-                          </option>
-                        ))}
-                      </Select>
-                    </Box>
-                    <Box flex="1">
-                      <Select defaultValue={reps}>
-                        {getRepsList().map((num) => (
-                          <option key={num} value={num}>
-                            {num}
-                          </option>
-                        ))}
-                      </Select>
-                    </Box>
-                    <Box flex="0.7">
-                      <Text textAlign="center">225</Text>
-                    </Box>
-                    <Box flex="0.5">
-                      <Button width="full" onClick={() => removeWorkoutSet(workout.id, idx)}>
-                        -
-                      </Button>
-                    </Box>
-                  </Stack>
-                )
-              })}
-            </Stack>
-            <Stack>
-              <WorkoutSets />
-            </Stack>
+            <ExerciseProps exercise={exercise} exerciseIdx={idx} />
+            <ExerciseSets exercise={exercise} />
           </Stack>
         )
       })}
@@ -133,56 +95,150 @@ function WorkoutCardList() {
   )
 }
 
-function WorkoutSets() {
+function ExerciseProps({ exercise, exerciseIdx }) {
+  const { removeWorkoutSet, updateExerciseSet } = useStore((store) => store.actions)
+  const { oneRepMax } = useStore((store) => store)
+
   return (
-    <Accordion allowToggle defaultIndex={[999]} allowMultiple>
-      <AccordionItem>
-        <AccordionHeader>
-          <Box flex="1" textAlign="left">
-            Warmup sets
-          </Box>
-          <AccordionIcon />
-        </AccordionHeader>
-        <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem>
-        <AccordionHeader>
-          <Box flex="1" textAlign="left">
-            Work sets plates
-          </Box>
-          <AccordionIcon />
-        </AccordionHeader>
-        <AccordionPanel pb={4}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+    <Stack>
+      {exercise.sets.map(({ rpe, reps, id }, idx) => {
+        const oneRM = oneRepMax?.find((item) => item.name === exercise.name)?.weight
+
+        return (
+          <Stack key={id} isInline alignItems="center">
+            <Box flex="0.5">
+              <Text textAlign="center">{idx + 1}.</Text>
+            </Box>
+            <Box flex="1">
+              <Select defaultValue={rpe} onChange={(e) => updateExerciseSet(exerciseIdx, idx, 'rpe', e.target.value)}>
+                {getRpeList().map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+            <Box flex="1">
+              <Select defaultValue={reps} onChange={(e) => updateExerciseSet(exerciseIdx, idx, 'reps', e.target.value)}>
+                {getRepsList().map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+            <Box flex="0.7">
+              <Text textAlign="center">{getWorksetWeight(rpe, reps, oneRM)}</Text>
+            </Box>
+            <Box flex="0.5">
+              <Button width="full" onClick={() => removeWorkoutSet(exerciseIdx, idx)}>
+                -
+              </Button>
+            </Box>
+          </Stack>
+        )
+      })}
+    </Stack>
   )
 }
 
-function DrawerExample() {
+function ExerciseSets({ exercise }) {
+  const { warmupSetsProps, plates, oneRepMax, units } = useStore((store) => store)
+
+  const workSet = exercise.sets[0]
+  const oneRM = oneRepMax?.find((item) => item.name === exercise.name)?.weight
+  const weight = getWorksetWeight(workSet.rpe, workSet.reps, oneRM)
+  const currentPlates = units === 'kg' ? plates.kg : plates.lbs
+
+  return (
+    <Stack>
+      <Accordion allowToggle defaultIndex={[999]} allowMultiple>
+        <AccordionItem>
+          <AccordionHeader>
+            <Box flex="1" textAlign="left">
+              Warmup sets
+            </Box>
+            <AccordionIcon />
+          </AccordionHeader>
+          <AccordionPanel pb={4}>
+            <Stack>
+              <Stack isInline>
+                <Box>
+                  <Text>no.</Text>
+                </Box>
+                <Box>
+                  <Text>percent</Text>
+                </Box>
+                <Box>
+                  <Text> weight</Text>
+                </Box>
+                <Box>
+                  <Text>reps</Text>
+                </Box>
+              </Stack>
+              {warmupSetsProps.map(({ percent, reps, id }, idx) => {
+                const warmupWeight = Math.round(weight * percent)
+                return (
+                  <Stack key={id} isInline>
+                    <Box>
+                      <Text>{idx + 1}.</Text>
+                    </Box>
+                    <Box>
+                      <Text>{Math.round(percent * 100)}%</Text>
+                    </Box>
+                    <Box>
+                      <Text>
+                        {getPlatesOnBar(warmupWeight, 20, currentPlates)} {warmupWeight}
+                      </Text>
+                    </Box>
+                    <Box>
+                      <Text>{reps}</Text>
+                    </Box>
+                  </Stack>
+                )
+              })}
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem>
+          <AccordionHeader>
+            <Box flex="1" textAlign="left">
+              Work sets plates
+            </Box>
+            <AccordionIcon />
+          </AccordionHeader>
+          <AccordionPanel pb={4}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+    </Stack>
+  )
+}
+
+function AppDrawer() {
   const { isOpen, onOpen, onClose } = useDisclosure(false)
   const btnRef = useRef()
 
   return (
     <>
-      <Button variant="ghost" onClick={onOpen} ref={btnRef}>
-        <Icon name="drag-handle" transform="rotate(90deg)" size="10" />
-      </Button>
+      <Flex>
+        <Button ml="auto" bg="white" variant="ghost" onClick={onOpen} ref={btnRef}>
+          <Icon name="drag-handle" transform="rotate(90deg)" size="10" />
+        </Button>
+      </Flex>
+
       <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={btnRef}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent overflowY="auto">
           <DrawerCloseButton size="lg" mt="2" mr="1" />
 
           <DrawerBody m="0" px="0" mt="16">
             <DrawerAcordion />
           </DrawerBody>
 
-          {/* <DrawerFooter>
+          <DrawerFooter>
             <Button variant="outline" mr={3} onClick={onClose}>
               Cancel
             </Button>
@@ -195,7 +251,7 @@ function DrawerExample() {
             >
               Reset
             </Button>
-          </DrawerFooter> */}
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>
@@ -204,8 +260,9 @@ function DrawerExample() {
 
 function DrawerAcordion() {
   const [units, setUnits] = useState<any>('kg')
-  const { oneRepMaxProps, oneRepMax } = useStore((store) => store)
-  const { updateOneRepMaxProps } = useStore((store) => store.actions)
+  const { oneRepMaxProps, oneRepMax, plates } = useStore((store) => store)
+  const { updateOneRepMaxProps, updatePlates } = useStore((store) => store.actions)
+  const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
   return (
     <Accordion defaultIndex={[999]} allowToggle>
@@ -236,7 +293,7 @@ function DrawerAcordion() {
           </Stack>
 
           {oneRepMaxProps?.map(({ name: _name, id, rpe, reps, weight }) => {
-            const oneRm = oneRepMax.find(({ name }) => name === _name).weight
+            const oneRm = oneRepMax?.find(({ name }) => name === _name)?.weight
             return (
               <Stack key={id} isInline alignItems="center" spacing="1" mt="1">
                 <Box flex="0.6">
@@ -311,26 +368,44 @@ function DrawerAcordion() {
                 </Select>
               </Box>
             </Stack>
-            {/* <Stack isInline alignItems='center'>
-              <Box>
-                <Text fontSize='xl'>Barbel weight</Text>
-              </Box>
-              <Box width='25%' ml='auto'>
-                <Select
-                  defaultValue={units === "kg" ? kgCurrentBarbellWeight : lbsCurrentBarbellWeight}
-                >
-                  {units === "kg" &&
-                    kgBarbelWeights.map(({ weight }) => <option value={weight}>{weight}</option>)}
-                  {units === "lbs" &&
-                    lbsBarbelWeights.map(({ weight }) => <option value={weight}>{weight}</option>)}
-                </Select>
-              </Box>
-            </Stack> */}
+
             <Stack>
               <Box>
                 <Text fontSize="xl">Warmup sets</Text>
               </Box>
-              {/* <WarmupSets /> */}
+              <WarmupSets />
+            </Stack>
+            <Stack>
+              <Box>
+                <Text fontSize="xl">Plates</Text>
+              </Box>
+              <Box>
+                <Text>KG</Text>
+              </Box>
+              <Stack isInline flexWrap="wrap">
+                {defaultPlates?.kg.map((plate) => (
+                  <Checkbox key={plate} value={plate} onChange={(e) => updatePlates('kg', +e.target.value)} isChecked={plates?.kg.includes(plate)} size="lg">
+                    {plate}
+                  </Checkbox>
+                ))}
+              </Stack>
+              <Box>
+                <Text>LBS</Text>
+              </Box>
+              <Stack isInline flexWrap="wrap">
+                {defaultPlates?.lbs.map((plate) => (
+                  <Checkbox
+                    key={plate}
+                    value={plate}
+                    onChange={(e) => updatePlates('lbs', +e.target.value)}
+                    isChecked={plates?.lbs.includes(plate)}
+                    bg={plates?.lbs.includes(plate)}
+                    size="lg"
+                  >
+                    {plate}
+                  </Checkbox>
+                ))}
+              </Stack>
             </Stack>
           </Stack>
         </AccordionPanel>
@@ -340,7 +415,8 @@ function DrawerAcordion() {
 }
 
 function WarmupSets() {
-  const { warmupSetsProps, updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store)
+  const { warmupSetsProps } = useStore((store) => store)
+  const { updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store.actions)
 
   return (
     <Stack>
@@ -356,7 +432,7 @@ function WarmupSets() {
         </Box>
         <Box flex="0.3" />
       </Stack>
-      {warmupSetsProps.map(({ percent, reps, id }, idx) => {
+      {warmupSetsProps?.map(({ percent, reps, id }, idx) => {
         return (
           <Stack key={id} isInline alignItems="center">
             <Box flex="0.3">
@@ -434,11 +510,13 @@ function getRepsList() {
 }
 
 function useSyncStorage() {
-  const { oneRepMaxProps, warmupSetsProps, currentWorkoutProps } = useStore((store) => store)
+  const { oneRepMaxProps, plates, warmupSetsProps, currentWorkoutProps, units } = useStore((store) => store)
+  const { getOneRepMax } = useStore((store) => store.actions)
 
   useEffect(() => {
     if (!oneRepMaxProps) return
     writeStorage('oneRepMaxProps', oneRepMaxProps)
+    getOneRepMax()
   }, [oneRepMaxProps])
 
   useEffect(() => {
@@ -450,14 +528,14 @@ function useSyncStorage() {
     if (!currentWorkoutProps) return
     writeStorage('currentWorkoutProps', currentWorkoutProps)
   }, [currentWorkoutProps])
-}
 
-function writeStorage(key: string, data: any): any[] {
-  window.localStorage.setItem(key, JSON.stringify(data))
-  return data
-}
+  useEffect(() => {
+    if (!plates) return
+    writeStorage('plates', plates)
+  }, [plates])
 
-function readStorage(key: string): any[] | null {
-  const item = window.localStorage.getItem(key) || 'null'
-  return JSON.parse(item)
+  useEffect(() => {
+    if (!units) return
+    writeStorage('units', units)
+  }, [units])
 }

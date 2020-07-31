@@ -1,7 +1,5 @@
 {
-    "eslint.codeAction.disableRuleComment": {
-        "enable": true,
-        "location": "separateLine"
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
     },
-    "eslint.format.enable": true,
 }
