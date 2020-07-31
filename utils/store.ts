@@ -29,7 +29,7 @@ const storeTwo = (set, get, api) => ({
 
 export const [useStoreTwo] = create(immer(storeTwo))
 
-const defaultWarmupSets = [
+const defaultWarmupSetsProps = [
   { id: 1, percent: 0, reps: 15 },
   { id: 2, percent: 0.55, reps: 8 },
   { id: 3, percent: 0.8, reps: 5 },
@@ -43,18 +43,19 @@ const defaultOneRepMaxProps = [
   { id: 4, name: 'OP', rpe: 10, reps: 5, weight: 60 },
 ]
 
+const defaultCurrentWorkoutProps: never[] = []
 interface State {
-  oneRepMax: any[]
-  oneRepMaxProps: { id: any; rpe: number; reps: number; weight: number }[]
-  warmupSets: { id: any; percent: number; reps: number }[]
-  currentWorkout: any[]
+  oneRepMax: any[] | null
+  oneRepMaxProps: { id: any; rpe: number; reps: number; weight: number }[] | null
+  warmupSetsProps: { id: any; percent: number; reps: number }[] | null
+  currentWorkoutProps: any[] | null
 }
 
 const initialState: State = {
-  oneRepMax: [],
-  oneRepMaxProps: [],
-  warmupSets: [],
-  currentWorkout: [],
+  oneRepMax: null,
+  oneRepMaxProps: null,
+  warmupSetsProps: null,
+  currentWorkoutProps: null,
 }
 
 const store = (set, get, api) => ({
@@ -101,14 +102,14 @@ const store = (set, get, api) => ({
     window.localStorage.setItem('currentWorkout', JSON.stringify(filtered))
     set({ currentWorkout: filtered })
   },
-  updateOneRepMaxProps: (_name, prop, data) => {
-    const { oneRepMaxProps, getOneRepMax } = get()
-    const found = oneRepMaxProps.find(({ name }) => name === _name)
-    found[prop] = +data
-    window.localStorage.setItem('oneRepMaxProps', JSON.stringify(oneRepMaxProps))
-    set({ oneRepMaxProps })
-    getOneRepMax()
-  },
+  //   updateOneRepMaxProps: (_name, prop, data) => {
+  //     const { oneRepMaxProps, getOneRepMax } = get()
+  //     const found = oneRepMaxProps.find(({ name }) => name === _name)
+  //     found[prop] = +data
+  //     window.localStorage.setItem('oneRepMaxProps', JSON.stringify(oneRepMaxProps))
+  //     set({ oneRepMaxProps })
+  //     getOneRepMax()
+  //   },
   updateWarmupSet: (_id, prop, data) => {
     const { warmupSets } = get()
     const found = warmupSets.find(({ id }) => id === _id)
@@ -133,57 +134,15 @@ const store = (set, get, api) => ({
     if (typeof window === undefined) return
     const warmupSets = window.localStorage.getItem('warmupSets') || null
     if (!warmupSets) {
-      window.localStorage.setItem('warmupSets', JSON.stringify(defaultWarmupSets))
-      set({ warmupSets: defaultWarmupSets })
+      window.localStorage.setItem('warmupSets', JSON.stringify(defaultWarmupSetsProps))
+      set({ warmupSets: defaultWarmupSetsProps })
     }
     if (warmupSets) set({ warmupSets: JSON.parse(warmupSets) })
   },
   actions: {
-    bootstrapState: () => {
-      set((state) => {
-        const oneRepMaxProps = window.localStorage.getItem('oneRepMaxProps') || null
-        if (oneRepMaxProps) state.oneRepMaxProps = JSON.parse(oneRepMaxProps)
-        if (!oneRepMaxProps) {
-          state.oneRepMaxProps = window.localStorage.setItem('oneRepMaxProps')
-        }
-
-        state.oneRepMaxProps = JSON.parse(window.localStorage.getItem('oneRepMaxProps') || JSON.stringify(defaultOneRepMaxProps))
-        state.warmupSets = JSON.parse(window.localStorage.getItem('warmupSets') || JSON.stringify(defaultWarmupSets))
-        state.currentWorkout = JSON.parse(window.localStorage.getItem('currentWorkout') || JSON.stringify([]))
-      })
-    },
-    getOneRepMax: () => {
-      set((state) => {
-        if (state.oneRepMaxProps.length === 0) return
-        const dl = state.oneRepMaxProps.find(({ name }) => name === 'DL')
-        const sq = state.oneRepMaxProps.find(({ name }) => name === 'SQ')
-        const bp = state.oneRepMaxProps.find(({ name }) => name === 'BP')
-        const op = state.oneRepMaxProps.find(({ name }) => name === 'OP')
-        const data = [
-          {
-            id: 1,
-            name: 'DL',
-            weight: calcOneRepMaxKg(dl.rpe, dl.reps, dl.weight),
-          },
-          {
-            id: 2,
-            name: 'SQ',
-            weight: calcOneRepMaxKg(sq.rpe, sq.reps, sq.weight),
-          },
-          {
-            id: 3,
-            name: 'BP',
-            weight: calcOneRepMaxKg(bp.rpe, bp.reps, bp.weight),
-          },
-          {
-            id: 4,
-            name: 'OP',
-            weight: calcOneRepMaxKg(op.rpe, op.reps, op.weight),
-          },
-        ]
-        state.oneRepMax = data
-      })
-    },
+    initializeState: () => initializeState(set),
+    getOneRepMax: () => getOneRepMax(set),
+    updateOneRepMaxProps: (_name, prop, data) => updateOneRepMaxProps(_name, prop, data, set),
   },
 
   getCurrentWorkout: () => {
@@ -199,4 +158,76 @@ const unsub1 = api.subscribe((state) => console.log('state changed', state))
 
 function calcOneRepMaxKg(rpe, reps, weight) {
   return +(weight / lookupTable[rpe][reps]).toFixed(1)
+}
+
+function initializeState(set) {
+  set((state) => {
+    const oneRepMaxProps = readStorage('oneRepMaxProps')
+    const warmupSetsProps = readStorage('warmupSetsProps')
+    const currentWorkoutProps = readStorage('currentWorkoutProps')
+
+    if (!oneRepMaxProps || !warmupSetsProps || !currentWorkoutProps) {
+      state.oneRepMaxProps = defaultOneRepMaxProps
+      state.warmupSetsProps = defaultWarmupSetsProps
+      state.currentWorkoutProps = defaultCurrentWorkoutProps
+    } else {
+      state.oneRepMaxProps = oneRepMaxProps
+      state.warmupSetsProps = warmupSetsProps
+      state.currentWorkoutProps = currentWorkoutProps
+    }
+  })
+}
+
+function getOneRepMax(set) {
+  set((state) => {
+    const { units, oneRepMaxProps } = state
+    const dl = oneRepMaxProps.find(({ name }) => name === 'DL')
+    const sq = oneRepMaxProps.find(({ name }) => name === 'SQ')
+    const bp = oneRepMaxProps.find(({ name }) => name === 'BP')
+    const op = oneRepMaxProps.find(({ name }) => name === 'OP')
+
+    const calcOneRepMax = units === 'kg' ? calcOneRepMaxKg : calcOneRepMaxKg
+
+    const data = [
+      {
+        id: 1,
+        name: 'DL',
+        weight: calcOneRepMax(dl.rpe, dl.reps, dl.weight),
+      },
+      {
+        id: 2,
+        name: 'SQ',
+        weight: calcOneRepMax(sq.rpe, sq.reps, sq.weight),
+      },
+      {
+        id: 3,
+        name: 'BP',
+        weight: calcOneRepMax(bp.rpe, bp.reps, bp.weight),
+      },
+      {
+        id: 4,
+        name: 'OP',
+        weight: calcOneRepMax(op.rpe, op.reps, op.weight),
+      },
+    ]
+    state.oneRepMax = data
+  })
+}
+
+function updateOneRepMaxProps(name, prop, data, set) {
+  set((state) => {
+    const idx = state.oneRepMaxProps.findIndex((item) => item.name === name)
+    state.oneRepMaxProps[idx][prop] = +data
+    state.actions.getOneRepMax()
+  })
+}
+
+function writeStorage(key: string, data: any): any[] {
+  window.localStorage.setItem(key, JSON.stringify(data))
+  return data
+}
+
+function readStorage(key: string): any[] | null {
+  const item = window.localStorage.getItem(key) || 'null'
+  return JSON.parse(item)
 }

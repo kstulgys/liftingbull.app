@@ -25,11 +25,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useStore, useStoreTwo } from '../utils/store'
 
 export default function IndexPage() {
-  const { getOneRepMaxProps, bootstrapState, getOneRepMax } = useStore((store) => store.actions)
+  useSyncStorage()
+  const { initializeState, getOneRepMax } = useStore((store) => store.actions)
   const { oneRepMaxProps } = useStore((store) => store)
 
   useEffect(() => {
-    bootstrapState()
+    initializeState()
   }, [])
 
   useEffect(() => {
@@ -38,13 +39,10 @@ export default function IndexPage() {
 
   return (
     <Stack maxW="sm" width="full" mx="auto" minH="100vh" p="4">
-      <Text>hi</Text>
-      {/* <Box ml="auto">
+      <Box ml="auto">
         <DrawerExample />
-        {text}
-        <Button onClick={() => setText('somethinbg')}>Set</Button>
       </Box>
-      <WorkoutCardList />
+      {/* <WorkoutCardList />
       <Stack mt="4">
         <Button onClick={addWorkout} size="lg">
           Add workout
@@ -184,7 +182,7 @@ function DrawerExample() {
             <DrawerAcordion />
           </DrawerBody>
 
-          <DrawerFooter>
+          {/* <DrawerFooter>
             <Button variant="outline" mr={3} onClick={onClose}>
               Cancel
             </Button>
@@ -197,7 +195,7 @@ function DrawerExample() {
             >
               Reset
             </Button>
-          </DrawerFooter>
+          </DrawerFooter> */}
         </DrawerContent>
       </Drawer>
     </>
@@ -206,7 +204,8 @@ function DrawerExample() {
 
 function DrawerAcordion() {
   const [units, setUnits] = useState<any>('kg')
-  const { oneRepMaxProps, oneRepMax, updateOneRepMaxProps } = useStore((store) => store)
+  const { oneRepMaxProps, oneRepMax } = useStore((store) => store)
+  const { updateOneRepMaxProps } = useStore((store) => store.actions)
 
   return (
     <Accordion defaultIndex={[999]} allowToggle>
@@ -236,7 +235,7 @@ function DrawerAcordion() {
             </Box>
           </Stack>
 
-          {oneRepMaxProps.map(({ name: _name, id, rpe, reps, weight }) => {
+          {oneRepMaxProps?.map(({ name: _name, id, rpe, reps, weight }) => {
             const oneRm = oneRepMax.find(({ name }) => name === _name).weight
             return (
               <Stack key={id} isInline alignItems="center" spacing="1" mt="1">
@@ -331,7 +330,7 @@ function DrawerAcordion() {
               <Box>
                 <Text fontSize="xl">Warmup sets</Text>
               </Box>
-              <WarmupSets />
+              {/* <WarmupSets /> */}
             </Stack>
           </Stack>
         </AccordionPanel>
@@ -341,7 +340,7 @@ function DrawerAcordion() {
 }
 
 function WarmupSets() {
-  const { warmupSets, updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store)
+  const { warmupSetsProps, updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store)
 
   return (
     <Stack>
@@ -357,7 +356,7 @@ function WarmupSets() {
         </Box>
         <Box flex="0.3" />
       </Stack>
-      {warmupSets.map(({ percent, reps, id }, idx) => {
+      {warmupSetsProps.map(({ percent, reps, id }, idx) => {
         return (
           <Stack key={id} isInline alignItems="center">
             <Box flex="0.3">
@@ -432,4 +431,33 @@ function getRpeList() {
 
 function getRepsList() {
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+}
+
+function useSyncStorage() {
+  const { oneRepMaxProps, warmupSetsProps, currentWorkoutProps } = useStore((store) => store)
+
+  useEffect(() => {
+    if (!oneRepMaxProps) return
+    writeStorage('oneRepMaxProps', oneRepMaxProps)
+  }, [oneRepMaxProps])
+
+  useEffect(() => {
+    if (!warmupSetsProps) return
+    writeStorage('warmupSetsProps', warmupSetsProps)
+  }, [warmupSetsProps])
+
+  useEffect(() => {
+    if (!currentWorkoutProps) return
+    writeStorage('currentWorkoutProps', currentWorkoutProps)
+  }, [currentWorkoutProps])
+}
+
+function writeStorage(key: string, data: any): any[] {
+  window.localStorage.setItem(key, JSON.stringify(data))
+  return data
+}
+
+function readStorage(key: string): any[] | null {
+  const item = window.localStorage.getItem(key) || 'null'
+  return JSON.parse(item)
 }
