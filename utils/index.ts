@@ -48,25 +48,60 @@ export function calcOneRepMaxKg(rpe: number, reps: number, weight: number): numb
   return +(weight / lookupTable[rpe][reps]).toFixed(1)
 }
 
+export function calcOneRepMaxLbs(rpe: number, reps: number, weight: number): number {
+  return Math.round(weight / lookupTable[rpe][reps])
+}
+
 export function getWorksetWeight(rpe: number, reps: number, oneRM: number): number {
   return +(oneRM * lookupTable[rpe][reps]).toFixed(1)
 }
 
 export function getPlatesOnBar(weight: number, barbellWeight: number, plates: number[], units?: string): string {
   let oneSideWeight = +((weight - barbellWeight) / 2).toFixed(1)
-  console.log({ oneSideWeight })
-  return plates.reduce((acc, plate, idx) => {
+
+  const result: string[] = plates.reduce((acc: string[], plate: number) => {
     const platesQuantity = Math.floor(oneSideWeight / plate)
     if (platesQuantity >= 1) {
       oneSideWeight -= +(platesQuantity * plate)
-      return acc + getString(idx === 0, plate, platesQuantity)
+      return [...acc, `${plate}${platesQuantity > 1 ? 'x' + platesQuantity : ''}`]
     }
     return acc
+  }, [])
+  return result.reduce((acc, next, idx) => {
+    if (idx === 0) return acc + next
+    return acc + '/' + next
   }, '')
 }
 
-function getString(isFirst: boolean, plate: number, platesQuantity: number) {
-  const prefix = isFirst ? '' : '/'
-  const multiplyer = platesQuantity > 1 ? 'x' + platesQuantity : ''
-  return prefix + plate + multiplyer
+export function getRepsNumbers() {
+  return Array(20)
+    .fill(null)
+    .map((_, idx) => idx + 1)
+}
+
+export function getWeightPercents() {
+  const array = Array(110)
+    .fill(null)
+    .map((_, idx) => {
+      const numString = idx + 1 + ''
+      if (numString[numString.length - 1] === '0' || numString[numString.length - 1] === '5') {
+        return (idx + 1) / 100
+      }
+    })
+    .filter(Boolean)
+  return [0, ...array]
+}
+
+export function getWeightNumbers() {
+  return Array(1000)
+    .fill(null)
+    .map((_, idx) => idx + 1)
+}
+
+export function getRpeList() {
+  return [6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+}
+
+export function getRepsList() {
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 }

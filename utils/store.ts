@@ -1,6 +1,6 @@
 import create from 'zustand'
 import { v4 as uuid } from 'uuid'
-import { readOrWriteStorage, calcOneRepMaxKg } from '.'
+import { readOrWriteStorage, calcOneRepMaxKg, calcOneRepMaxLbs } from '.'
 
 const defaultWarmupSetsProps = [
   { id: 1, percent: 0, reps: 15 },
@@ -49,6 +49,12 @@ export const [useStore, api] = create((set, get) => ({
         plates: readOrWriteStorage('plates', defaultPlates),
         units: readOrWriteStorage('units', defaultUnits),
       })
+    },
+
+    // UNITS
+    updateUnits: () => {
+      const { units } = get()
+      set({ units: units === 'kg' ? 'lbs' : 'kg' })
     },
 
     // PLATES
@@ -127,33 +133,45 @@ export const [useStore, api] = create((set, get) => ({
       set({ oneRepMaxProps: copyArray })
     },
     getOneRepMax: () => {
-      const { units, oneRepMaxProps } = get()
+      const { oneRepMaxProps } = get()
       if (!oneRepMaxProps.length) return
       const dl = oneRepMaxProps.find(({ name }) => name === 'DL')
       const sq = oneRepMaxProps.find(({ name }) => name === 'SQ')
       const bp = oneRepMaxProps.find(({ name }) => name === 'BP')
       const op = oneRepMaxProps.find(({ name }) => name === 'OP')
-      const calcOneRepMax = units === 'kg' ? calcOneRepMaxKg : calcOneRepMaxKg
+
       const data = [
         {
           id: 1,
           name: 'DL',
-          weight: calcOneRepMax(dl.rpe, dl.reps, dl.weight),
+          weight: {
+            kg: calcOneRepMaxKg(dl.rpe, dl.reps, dl.weight.kg),
+            lbs: calcOneRepMaxLbs(dl.rpe, dl.reps, dl.weight.lbs),
+          },
         },
         {
           id: 2,
           name: 'SQ',
-          weight: calcOneRepMax(sq.rpe, sq.reps, sq.weight),
+          weight: {
+            kg: calcOneRepMaxKg(sq.rpe, sq.reps, sq.weight.kg),
+            lbs: calcOneRepMaxLbs(sq.rpe, sq.reps, sq.weight.lbs),
+          },
         },
         {
           id: 3,
           name: 'BP',
-          weight: calcOneRepMax(bp.rpe, bp.reps, bp.weight),
+          weight: {
+            kg: calcOneRepMaxKg(bp.rpe, bp.reps, bp.weight.kg),
+            lbs: calcOneRepMaxLbs(bp.rpe, bp.reps, bp.weight.lbs),
+          },
         },
         {
           id: 4,
           name: 'OP',
-          weight: calcOneRepMax(op.rpe, op.reps, op.weight),
+          weight: {
+            kg: calcOneRepMaxKg(op.rpe, op.reps, op.weight.kg),
+            lbs: calcOneRepMaxLbs(op.rpe, op.reps, op.weight.lbs),
+          },
         },
       ]
       set({ oneRepMax: data })
