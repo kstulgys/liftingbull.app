@@ -16,7 +16,7 @@ const defaultOneRepMaxProps = [
   { id: 4, name: 'OP', rpe: 10, reps: 5, weight: 60 },
 ]
 
-const defaultCurrentWorkoutProps: never[] = []
+const defaultCurrentWorkoutProps = []
 const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 const defaultUnits = 'kg'
 interface State {
