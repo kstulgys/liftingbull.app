@@ -14,7 +14,7 @@ export function AppDrawer() {
         </Button>
       </Flex>
 
-      <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={btnRef}>
+      <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent overflowY="auto" bg="gray.900" fontFamily="Montserrat" color="cyan.300">
           <DrawerCloseButton size="lg" mt="2" mr="1" />
