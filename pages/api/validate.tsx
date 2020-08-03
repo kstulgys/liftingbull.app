@@ -1,3 +1,7 @@
+export default async (req, res) => {
+  res.status(200)
+}
+
 // // import admin from 'firebase-admin'
 // import * as admin from 'firebase-admin'
 
