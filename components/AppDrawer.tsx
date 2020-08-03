@@ -10,13 +10,13 @@ export function AppDrawer() {
     <>
       <Flex>
         <Button ml="auto" bg="gray.900" variant="unstyled" onClick={onOpen} ref={btnRef}>
-          <Icon name="drag-handle" transform="rotate(90deg)" size="10" color="cyan.300" />
+          <Icon name="drag-handle" transform="rotate(90deg)" size="10" color="teal.300" />
         </Button>
       </Flex>
 
       <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent overflowY="auto" bg="gray.900" fontFamily="Montserrat" color="cyan.300">
+        <DrawerContent overflowY="auto" bg="gray.900" fontFamily="Montserrat" color="teal.300">
           <DrawerCloseButton size="lg" mt="2" mr="1" />
 
           <DrawerBody m="0" px="0" mt="16">

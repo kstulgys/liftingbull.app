@@ -21,12 +21,11 @@ export function DrawerItemList() {
 function OneRepMaxSettings() {
   const { oneRepMaxProps, oneRepMax, units } = useStore((store) => store)
   const { updateOneRepMaxProps } = useStore((store) => store.actions)
-  if (!oneRepMax.lenght) return null
 
   return (
     <AccordionItem borderColor="gray.900">
       <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="green.700">
+        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
           One Rep Max
         </Box>
         <AccordionIcon />
@@ -51,6 +50,8 @@ function OneRepMaxSettings() {
         </Stack>
 
         {oneRepMaxProps?.map(({ name: _name, id, rpe, reps, weight }) => {
+          if (!oneRepMax.lenght) return null
+
           const oneRm = oneRepMax?.find(({ name }) => name === _name)?.weight
           const oneRMWeight = oneRm && units === 'kg' ? oneRm.kg : oneRm.lbs
 
