@@ -1,7 +1,38 @@
-import { Button, Accordion, AccordionItem, AccordionHeader, AccordionPanel, AccordionIcon, Box, Stack, Text, Select, Switch, FormLabel } from '@chakra-ui/core'
-import { useState } from 'react'
-import { getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
+import {
+  Button,
+  Accordion,
+  AccordionItem,
+  AccordionHeader,
+  AccordionPanel,
+  AccordionIcon,
+  Box,
+  Stack,
+  Text,
+  Select,
+  Switch,
+  FormLabel,
+  useDisclosure,
+  Input,
+  Editable,
+  EditableInput,
+  EditablePreview,
+} from '@chakra-ui/core'
+import { useEffect, useState } from 'react'
+import {
+  calcOneRepMaxKg,
+  calcOneRepMaxLbs,
+  convertToKg,
+  convertToLbs,
+  getKgAndLbs,
+  getRepsList,
+  getRepsNumbers,
+  getRpeList,
+  getWeightNumbers,
+  getWeightPercents,
+} from '../utils'
+import { db } from '../utils/firebase'
 import { useStore } from '../utils/store'
+import { useAuth } from '../utils/useAuth'
 
 const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
@@ -19,8 +50,32 @@ export function DrawerItemList() {
 }
 
 function OneRepMaxSettings() {
-  const { oneRepMaxProps, oneRepMax, units } = useStore((store) => store)
-  const { updateOneRepMaxProps } = useStore((store) => store.actions)
+  const { user } = useAuth()
+  const [settings, setSettings] = useState(null)
+
+  useEffect(() => {
+    if (!user) return
+    return db.collection('settings').onSnapshot((snap) => {
+      snap.forEach((doc) => {
+        setSettings({ ...doc.data() })
+      })
+    })
+  }, [user])
+
+  if (!user) return null
+
+  const addNewExercise = () => {
+    const { weightKg, weightLbs } = getKgAndLbs(settings.units, 200)
+
+    db.collection('settings')
+      .doc(user.uid)
+      .set(
+        {
+          oneRepMaxProps: [...settings.oneRepMaxProps, { id: settings.oneRepMaxProps.length + 1, shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }],
+        },
+        { merge: true }
+      )
+  }
 
   return (
     <AccordionItem borderColor="gray.900">
@@ -49,52 +104,150 @@ function OneRepMaxSettings() {
           </Box>
         </Stack>
 
-        {oneRepMaxProps?.map(({ name: _name, id, rpe, reps, weight }) => {
-          if (!oneRepMax.lenght) return null
-
-          const oneRm = oneRepMax?.find(({ name }) => name === _name)?.weight
-          const oneRMWeight = oneRm && units === 'kg' ? oneRm.kg : oneRm.lbs
-
-          return (
-            <Stack key={id} isInline alignItems="center" spacing="1" mt="1">
-              <Box flex="0.6">
-                <Text textAlign="start">{_name}</Text>
-              </Box>
-              <Box flex="1">
-                <Select defaultValue={rpe} onChange={(e) => updateOneRepMaxProps(_name, 'rpe', e.target.value)}>
-                  {getRpeList().map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </Select>
-              </Box>
-              <Box flex="1">
-                <Select defaultValue={reps} onChange={(e) => updateOneRepMaxProps(_name, 'reps', e.target.value)}>
-                  {getRepsList().map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </Select>
-              </Box>
-              <Box flex="1">
-                <Select defaultValue={weight} onChange={(e) => updateOneRepMaxProps(_name, 'weight', e.target.value)}>
-                  {getWeightNumbers().map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </Select>
-              </Box>
-              <Box flex="0.6">
-                <Text textAlign="end">{oneRMWeight}</Text>
-              </Box>
-            </Stack>
-          )
+        {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
+          const props = { shortName, id, rpe, reps, weightKg, weightLbs }
+          return <OneRepMaxItem key={id} {...props} settings={settings} />
         })}
+
+        <Button
+          mt="4"
+          width="full"
+          onClick={addNewExercise}
+          size="lg"
+          rounded="full"
+          fontSize="xl"
+          border="4px solid"
+          borderColor="cyan.300"
+          fontWeight="bold"
+          variant="ghost"
+          color="cyan.300"
+          _hover={{
+            bg: 'cyan.300',
+            color: 'gray.900',
+          }}
+        >
+          Add Exercise
+        </Button>
       </AccordionPanel>
     </AccordionItem>
+  )
+}
+
+function OneRepMaxItem(props) {
+  const { shortName, id, rpe, reps, weightKg, weightLbs, settings } = props
+  const { user } = useAuth()
+
+  const weight = settings.units === 'kg' ? weightKg : weightLbs
+  const calculateOneRepMax = settings.units === 'kg' ? calcOneRepMaxKg : calcOneRepMaxLbs
+
+  const updateOneRepMaxProp = (prop, data) => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    oneRepMaxProps.find((element) => element.id == id)[prop] = +data
+    settingsRef.set({ oneRepMaxProps }, { merge: true })
+  }
+
+  const updateWeightProp = (weight) => {
+    const { weightKg, weightLbs } = getKgAndLbs(settings.units, weight)
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    oneRepMaxProps.find((element) => element.id == id)['weightKg'] = weightKg
+    oneRepMaxProps.find((element) => element.id == id)['weightLbs'] = weightLbs
+    settingsRef.set({ oneRepMaxProps }, { merge: true })
+  }
+
+  const updateNameProp = (value) => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    oneRepMaxProps.find((element) => element.id == id)['shortName'] = value
+    settingsRef.set({ oneRepMaxProps }, { merge: true })
+  }
+  const removeExercise = () => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const oneRepMaxProps = settings.oneRepMaxProps.filter((item) => item.id !== id)
+    settingsRef.set({ oneRepMaxProps }, { merge: true })
+  }
+
+  return (
+    <Stack key={id} isInline alignItems="center" spacing="1" mt="1" fontWeight="bold">
+      <Box flex="0.6">
+        <Editable placeholder="XXX" defaultValue={shortName} onSubmit={updateNameProp}>
+          <EditablePreview />
+          <EditableInput height="8" />
+        </Editable>
+      </Box>
+      <Box flex="1">
+        <Select
+          style={{
+            textAlignLast: 'center',
+          }}
+          backgroundColor="gray.900"
+          borderColor="gray.900"
+          fontWeight="bold"
+          _hover={{
+            borderColor: 'gray.900',
+          }}
+          defaultValue={rpe}
+          onChange={(e) => updateOneRepMaxProp('rpe', +e.target.value)}
+        >
+          {getRpeList().map((num) => (
+            <option key={num} value={num}>
+              {num}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      <Box flex="1">
+        <Select
+          style={{
+            textAlignLast: 'center',
+          }}
+          backgroundColor="gray.900"
+          borderColor="gray.900"
+          fontWeight="bold"
+          _hover={{
+            borderColor: 'gray.900',
+          }}
+          defaultValue={reps}
+          onChange={(e) => updateOneRepMaxProp('reps', +e.target.value)}
+        >
+          {getRepsList().map((num) => (
+            <option key={num} value={num}>
+              {num}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      <Box flex="1">
+        <Select
+          style={{
+            textAlignLast: 'center',
+          }}
+          backgroundColor="gray.900"
+          borderColor="gray.900"
+          fontWeight="bold"
+          _hover={{
+            borderColor: 'gray.900',
+          }}
+          defaultValue={weight}
+          onChange={(e) => updateWeightProp(+e.target.value)}
+        >
+          {getWeightNumbers().map((num) => (
+            <option key={num} value={num}>
+              {num}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      <Box
+        flex="0.6"
+        onDoubleClick={() => {
+          if (window.confirm('Are you sure you want to delete this exercise?')) removeExercise()
+        }}
+      >
+        <Text textAlign="end">{calculateOneRepMax(rpe, reps, weight)}</Text>
+      </Box>
+    </Stack>
   )
 }
 

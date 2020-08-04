@@ -1,28 +1,18 @@
 import * as firebase from 'firebase/app'
 import 'firebase/auth'
-
-// let defaultApp
+import 'firebase/firestore'
 
 const defaultAppConfig = {
-  apiKey: 'AIzaSyADxTKXGWQi3efM0mXQwgkXlfZhqIoqIIg',
-  authDomain: 'liftingbull-app.firebaseapp.com',
-  projectId: 'liftingbull-app',
-  appId: '1:1092891371959:web:a5a0e17324559aeab86032',
+  apiKey: process.env.NEXT_PUBLIC_apiKey,
+  authDomain: process.env.NEXT_PUBLIC_authDomain,
+  projectId: process.env.NEXT_PUBLIC_projectId,
+  appId: process.env.NEXT_PUBLIC_appId,
 }
 
 if (!firebase.apps.length) {
   firebase.initializeApp(defaultAppConfig)
 }
 
-//   firebase.initializeApp({
-//     apiKey: 'AIzaSyADxTKXGWQi3efM0mXQwgkXlfZhqIoqIIg',
-//     authDomain: 'liftingbull-app.firebaseapp.com',
-//     projectId: 'liftingbull-app',
-//     appId: '1:1092891371959:web:a5a0e17324559aeab86032',
-//     // databaseURL: 'https://liftingbull-app.firebaseio.com',
-//     // storageBucket: 'liftingbull-app.appspot.com',
-//     // messagingSenderId: '1092891371959',
-//     // measurementId: 'G-3EY9F8EZC0',
-//   })
+const db = firebase.firestore()
 
-export { firebase }
+export { firebase, db }

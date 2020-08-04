@@ -27,7 +27,7 @@ export default function IndexPage() {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"></link>
       </Head>
-      <Stack as="body" minHeight="webkitFillAvailable" bg="gray.900" fontFamily="Montserrat">
+      <Stack bg="gray.900" fontFamily="Montserrat">
         <Stack shouldWrapChildren maxW="sm" width="full" mx="auto" minH="100vh" p="4">
           <AppDrawer />
           <ExerciseList />

@@ -105,3 +105,29 @@ export function getRpeList() {
 export function getRepsList() {
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 }
+
+export function convertToLbs(kg) {
+  return Math.round(kg * 2.205)
+}
+
+export function convertToKg(lbs) {
+  return +(lbs / 2.205).toFixed(1)
+}
+
+export function getKgAndLbs(units, weight): { weightKg: number; weightLbs: number } {
+  let weightKg
+  let weightLbs
+  if (units === 'kg') {
+    weightKg = weight
+    weightLbs = convertToLbs(weightKg)
+  }
+  if (units === 'lbs') {
+    weightLbs = weight
+    weightKg = convertToKg(weightKg)
+  }
+
+  return {
+    weightLbs,
+    weightKg,
+  }
+}

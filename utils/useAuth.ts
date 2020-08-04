@@ -1,6 +1,25 @@
 import cookie from 'js-cookie'
 import create from 'zustand'
-import { firebase } from '../utils/firebase'
+import { firebase, db } from '../utils/firebase'
+
+const defaultOneRepMaxProps = [
+  {
+    id: 1,
+    shortName: 'sq',
+    weightKg: 200,
+    weightLbs: 441,
+    reps: 5,
+    rpe: 10,
+  },
+  {
+    id: 2,
+    shortName: 'dl',
+    weightKg: 200,
+    weightLbs: 441,
+    reps: 5,
+    rpe: 10,
+  },
+]
 
 export const [useAuth, api] = create((set, get) => ({
   loading: true,
@@ -12,9 +31,28 @@ export const [useAuth, api] = create((set, get) => ({
 
       return firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
+          const { displayName, email, uid } = user
+          const userRef = db.collection('users').doc(uid)
+          const settingsRef = db.collection('settings').doc(uid)
+
+          userRef
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                set({ user: { ...doc.data(), loading: false } })
+              } else {
+                userRef.set({ uid, displayName, email })
+                settingsRef.set({
+                  units: 'kg',
+                  oneRepMaxProps: defaultOneRepMaxProps,
+                })
+              }
+            })
+            .catch((error) => {
+              console.log('Error getting document:', error)
+            })
           const token = await user.getIdToken()
           cookie.set(tokenName, token, { expires: 365 })
-          set({ user, loading: false })
           cbSuccess()
         } else {
           cookie.remove(tokenName)
