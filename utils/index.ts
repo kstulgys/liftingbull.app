@@ -92,10 +92,40 @@ export function getWeightPercents() {
   return [0, ...array]
 }
 
-export function getWeightNumbers() {
-  return Array(1000)
-    .fill(null)
-    .map((_, idx) => idx + 1)
+export function getWeightNumbers(units) {
+  if (units === 'lbs') {
+    const array = Array(1100).fill(null)
+    const res = []
+    array.forEach((el, idx) => {
+      if (idx >= 45) {
+        res.push(idx)
+      }
+    })
+    return res
+  }
+
+  if (units === 'kg') {
+    const round = (num) => +num.toFixed(1)
+    const array = Array(600).fill(null)
+    const res = []
+    array.forEach((el, idx) => {
+      if (idx >= 20) {
+        res.push(
+          idx,
+          round(idx + 0.1),
+          round(idx + 0.2),
+          round(idx + 0.3),
+          round(idx + 0.4),
+          round(idx + 0.5),
+          round(idx + 0.6),
+          round(idx + 0.7),
+          round(idx + 0.8),
+          round(idx + 0.9)
+        )
+      }
+    })
+    return res
+  }
 }
 
 export function getRpeList() {
@@ -115,19 +145,15 @@ export function convertToKg(lbs) {
 }
 
 export function getKgAndLbs(units, weight): { weightKg: number; weightLbs: number } {
-  let weightKg
-  let weightLbs
   if (units === 'kg') {
-    weightKg = weight
-    weightLbs = convertToLbs(weightKg)
-  }
-  if (units === 'lbs') {
-    weightLbs = weight
-    weightKg = convertToKg(weightKg)
+    const weightKg = weight
+    const weightLbs = convertToLbs(weightKg)
+    return { weightLbs, weightKg }
   }
 
-  return {
-    weightLbs,
-    weightKg,
+  if (units === 'lbs') {
+    const weightLbs = weight
+    const weightKg = convertToKg(weightLbs)
+    return { weightLbs, weightKg }
   }
 }

@@ -1,5 +1,5 @@
 import {
-  Button,
+  // Button,
   Accordion,
   AccordionItem,
   AccordionHeader,
@@ -8,7 +8,7 @@ import {
   Box,
   Stack,
   Text,
-  Select,
+  // Select,
   Switch,
   FormLabel,
   useDisclosure,
@@ -18,38 +18,15 @@ import {
   EditablePreview,
 } from '@chakra-ui/core'
 import { useEffect, useState } from 'react'
-import {
-  calcOneRepMaxKg,
-  calcOneRepMaxLbs,
-  convertToKg,
-  convertToLbs,
-  getKgAndLbs,
-  getRepsList,
-  getRepsNumbers,
-  getRpeList,
-  getWeightNumbers,
-  getWeightPercents,
-} from '../utils'
+import { calcOneRepMaxKg, calcOneRepMaxLbs, getKgAndLbs, getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
 import { db } from '../utils/firebase'
 import { useStore } from '../utils/store'
 import { useAuth } from '../utils/useAuth'
+import { Button, Select } from './lib'
 
 const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
 export function DrawerItemList() {
-  return (
-    <Accordion defaultIndex={[999]} allowToggle>
-      <OneRepMaxSettings />
-      <VariantsSettings />
-      <WorkoutSettings />
-      <WarmupSettings />
-      <UnitsSettings />
-      <PlatesSettings />
-    </Accordion>
-  )
-}
-
-function OneRepMaxSettings() {
   const { user } = useAuth()
   const [settings, setSettings] = useState(null)
 
@@ -62,11 +39,25 @@ function OneRepMaxSettings() {
     })
   }, [user])
 
-  if (!user) return null
+  if (!user || !settings) return null
+
+  return (
+    <Accordion defaultIndex={[999]} allowToggle>
+      <OneRepMaxSettings settings={settings} />
+      <WarmupSettings settings={settings} />
+      <UnitsSettings settings={settings} />
+      <PlatesSettings settings={settings} />
+      {/* <VariantsSettings /> */}
+      {/* <WorkoutSettings /> */}
+    </Accordion>
+  )
+}
+
+function OneRepMaxSettings({ settings }) {
+  const { user } = useAuth()
 
   const addNewExercise = () => {
     const { weightKg, weightLbs } = getKgAndLbs(settings.units, 200)
-
     db.collection('settings')
       .doc(user.uid)
       .set(
@@ -86,7 +77,7 @@ function OneRepMaxSettings() {
         <AccordionIcon />
       </AccordionHeader>
       <AccordionPanel mt="3">
-        <Stack isInline fontWeight="bold" mb="2" fontSize="sm">
+        <Stack isInline fontWeight="bold" mb="2">
           <Box flex="0.6">
             <Text>NAME</Text>
           </Box>
@@ -103,11 +94,12 @@ function OneRepMaxSettings() {
             <Text textAlign="end">1RM</Text>
           </Box>
         </Stack>
-
-        {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
-          const props = { shortName, id, rpe, reps, weightKg, weightLbs }
-          return <OneRepMaxItem key={id} {...props} settings={settings} />
-        })}
+        <Stack spacing="4" shouldWrapChildren>
+          {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
+            const props = { shortName, id, rpe, reps, weightKg, weightLbs }
+            return <OneRepMaxItem key={id} {...props} settings={settings} />
+          })}
+        </Stack>
 
         <Button
           mt="4"
@@ -139,9 +131,9 @@ function OneRepMaxItem(props) {
 
   const weight = settings.units === 'kg' ? weightKg : weightLbs
   const calculateOneRepMax = settings.units === 'kg' ? calcOneRepMaxKg : calcOneRepMaxLbs
+  const settingsRef = db.collection('settings').doc(user.uid)
 
   const updateOneRepMaxProp = (prop, data) => {
-    const settingsRef = db.collection('settings').doc(user.uid)
     const oneRepMaxProps = [...settings.oneRepMaxProps]
     oneRepMaxProps.find((element) => element.id == id)[prop] = +data
     settingsRef.set({ oneRepMaxProps }, { merge: true })
@@ -149,7 +141,6 @@ function OneRepMaxItem(props) {
 
   const updateWeightProp = (weight) => {
     const { weightKg, weightLbs } = getKgAndLbs(settings.units, weight)
-    const settingsRef = db.collection('settings').doc(user.uid)
     const oneRepMaxProps = [...settings.oneRepMaxProps]
     oneRepMaxProps.find((element) => element.id == id)['weightKg'] = weightKg
     oneRepMaxProps.find((element) => element.id == id)['weightLbs'] = weightLbs
@@ -157,19 +148,17 @@ function OneRepMaxItem(props) {
   }
 
   const updateNameProp = (value) => {
-    const settingsRef = db.collection('settings').doc(user.uid)
     const oneRepMaxProps = [...settings.oneRepMaxProps]
     oneRepMaxProps.find((element) => element.id == id)['shortName'] = value
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
   const removeExercise = () => {
-    const settingsRef = db.collection('settings').doc(user.uid)
     const oneRepMaxProps = settings.oneRepMaxProps.filter((item) => item.id !== id)
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
 
   return (
-    <Stack key={id} isInline alignItems="center" spacing="1" mt="1" fontWeight="bold">
+    <Stack key={id} isInline alignItems="center" spacing="1" fontWeight="bold" fontSize="lg">
       <Box flex="0.6">
         <Editable placeholder="XXX" defaultValue={shortName} onSubmit={updateNameProp}>
           <EditablePreview />
@@ -177,19 +166,7 @@ function OneRepMaxItem(props) {
         </Editable>
       </Box>
       <Box flex="1">
-        <Select
-          style={{
-            textAlignLast: 'center',
-          }}
-          backgroundColor="gray.900"
-          borderColor="gray.900"
-          fontWeight="bold"
-          _hover={{
-            borderColor: 'gray.900',
-          }}
-          defaultValue={rpe}
-          onChange={(e) => updateOneRepMaxProp('rpe', +e.target.value)}
-        >
+        <Select value={rpe} onChange={(e) => updateOneRepMaxProp('rpe', +e.target.value)}>
           {getRpeList().map((num) => (
             <option key={num} value={num}>
               {num}
@@ -198,19 +175,7 @@ function OneRepMaxItem(props) {
         </Select>
       </Box>
       <Box flex="1">
-        <Select
-          style={{
-            textAlignLast: 'center',
-          }}
-          backgroundColor="gray.900"
-          borderColor="gray.900"
-          fontWeight="bold"
-          _hover={{
-            borderColor: 'gray.900',
-          }}
-          defaultValue={reps}
-          onChange={(e) => updateOneRepMaxProp('reps', +e.target.value)}
-        >
+        <Select value={reps} onChange={(e) => updateOneRepMaxProp('reps', +e.target.value)}>
           {getRepsList().map((num) => (
             <option key={num} value={num}>
               {num}
@@ -219,20 +184,8 @@ function OneRepMaxItem(props) {
         </Select>
       </Box>
       <Box flex="1">
-        <Select
-          style={{
-            textAlignLast: 'center',
-          }}
-          backgroundColor="gray.900"
-          borderColor="gray.900"
-          fontWeight="bold"
-          _hover={{
-            borderColor: 'gray.900',
-          }}
-          defaultValue={weight}
-          onChange={(e) => updateWeightProp(+e.target.value)}
-        >
-          {getWeightNumbers().map((num) => (
+        <Select value={weight} onChange={(e) => updateWeightProp(+e.target.value)}>
+          {getWeightNumbers(settings.units).map((num) => (
             <option key={num} value={num}>
               {num}
             </option>
@@ -251,9 +204,20 @@ function OneRepMaxItem(props) {
   )
 }
 
-function UnitsSettings() {
-  const { units } = useStore((store) => store)
-  const { updateUnits } = useStore((store) => store.actions)
+function UnitsSettings({ settings }) {
+  const { user } = useAuth()
+
+  const updateUnits = () => {
+    const currentUnits = settings.units
+    db.collection('settings')
+      .doc(user.uid)
+      .set(
+        {
+          units: currentUnits === 'kg' ? 'lbs' : 'kg',
+        },
+        { merge: true }
+      )
+  }
 
   return (
     <AccordionItem borderColor="gray.900">
@@ -266,9 +230,9 @@ function UnitsSettings() {
       <AccordionPanel pb={4} mt="3">
         <Stack isInline align="center">
           <FormLabel htmlFor="units" textTransform="capitalize" width="10" fontWeight="bold">
-            {units}
+            {settings.units}
           </FormLabel>
-          <Switch isChecked={units === 'kg'} size="lg" id="units" onChange={updateUnits} />
+          <Switch isChecked={settings.units === 'kg'} size="lg" id="units" onChange={updateUnits} />
         </Stack>
       </AccordionPanel>
     </AccordionItem>
@@ -309,7 +273,7 @@ function VariantsSettings() {
   )
 }
 
-function PlatesSettings() {
+function PlatesSettings({ settings }) {
   const { plates } = useStore((store) => store)
   const { updatePlates } = useStore((store) => store.actions)
   return (
@@ -352,22 +316,38 @@ function PlatesSettings() {
   )
 }
 
-function WarmupSettings() {
-  const { warmupSetsProps } = useStore((store) => store)
-  const { updateWarmupSet, addWarmupSet, removeWarmupSet } = useStore((store) => store.actions)
+function WarmupSettings({ settings }) {
+  const { user } = useAuth()
+
+  // const updateSetProp = (prop, data) => {
+  //   const settingsRef = db.collection('settings').doc(user.uid)
+  //   const warmupSetsProps = [...settings.warmupSetsProps]
+  //   warmupSetsProps.find((element) => element.id == id)[prop] = +data
+  //   settingsRef.set({ warmupSetsProps }, { merge: true })
+  // }
+
+  const addWarmupSet = () => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    settingsRef.set(
+      {
+        warmupSetsProps: [...settings.warmupSetsProps, { id: settings.warmupSetsProps.length + 1, pct: 0.55, reps: 8 }],
+      },
+      { merge: true }
+    )
+  }
 
   return (
     <AccordionItem borderColor="gray.900">
       <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
-          <Text>Warmup sets</Text>
+        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
+          Warmup sets
         </Box>
         <AccordionIcon />
       </AccordionHeader>
       <AccordionPanel mt="3">
         <Stack>
-          <Stack isInline fontWeight="bold" fontSize="sm">
-            <Box flex="0.3">
+          <Stack isInline fontWeight="bold">
+            <Box flex="0.2">
               <Text>SET</Text>
             </Box>
             <Box flex="1">
@@ -376,53 +356,13 @@ function WarmupSettings() {
             <Box flex="1">
               <Text textAlign="center">REPS</Text>
             </Box>
-            <Box flex="0.3" />
+            <Box flex="0.2" />
           </Stack>
-          {warmupSetsProps?.map(({ percent, reps, id }, idx) => {
-            return (
-              <Stack key={id} isInline alignItems="center">
-                <Box flex="0.2">
-                  <Text fontSize="lg">{idx + 1}.</Text>
-                </Box>
-                <Box flex="1">
-                  <Box>
-                    <Select size="lg" defaultValue={percent} onChange={(e) => updateWarmupSet(id, 'percent', e.target.value)}>
-                      {getWeightPercents().map((num) => (
-                        <option key={num} value={num}>
-                          {Math.round(num * 100)}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                </Box>
-                <Box flex="1">
-                  <Box>
-                    <Select size="lg" defaultValue={reps} onChange={(e) => updateWarmupSet(id, 'reps', e.target.value)}>
-                      {getRepsNumbers().map((num) => (
-                        <option key={num} value={num}>
-                          {num}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                </Box>
-                <Box flex="0.2">
-                  <Button
-                    size="lg"
-                    width="full"
-                    bg="gray.900"
-                    color="gray.100"
-                    _hover={{
-                      bg: 'gray.700',
-                    }}
-                    onClick={() => removeWarmupSet(id)}
-                  >
-                    x
-                  </Button>
-                </Box>
-              </Stack>
-            )
-          })}
+          <Stack shouldWrapChildren>
+            {settings.warmupSetsProps.map((props, idx) => (
+              <WarmupSetItem key={props.id} {...props} idx={idx} settings={settings} />
+            ))}
+          </Stack>
 
           <Box>
             <Button
@@ -441,6 +381,63 @@ function WarmupSettings() {
         </Stack>
       </AccordionPanel>
     </AccordionItem>
+  )
+}
+
+function WarmupSetItem({ pct, reps, id, idx, settings }) {
+  const { user } = useAuth()
+
+  const updateSetProp = (prop, data) => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const warmupSetsProps = [...settings.warmupSetsProps]
+    warmupSetsProps.find((element) => element.id == id)[prop] = +data
+    settingsRef.set({ warmupSetsProps }, { merge: true })
+  }
+
+  const removeWarmupSet = () => {
+    const settingsRef = db.collection('settings').doc(user.uid)
+    const updatedSetsProps = settings.warmupSetsProps.filter((item) => item.id !== id)
+    settingsRef.set(
+      {
+        warmupSetsProps: updatedSetsProps,
+      },
+      { merge: true }
+    )
+  }
+
+  return (
+    <Stack key={id} isInline alignItems="center">
+      <Box flex="0.2">
+        <Text fontSize="lg">{idx + 1}.</Text>
+      </Box>
+      <Box flex="1">
+        <Box>
+          <Select size="lg" defaultValue={pct} onChange={(e) => updateSetProp('pct', +e.target.value)}>
+            {getWeightPercents().map((num) => (
+              <option key={num} value={num}>
+                {Math.round(num * 100)}
+              </option>
+            ))}
+          </Select>
+        </Box>
+      </Box>
+      <Box flex="1">
+        <Box>
+          <Select size="lg" defaultValue={reps} onChange={(e) => updateSetProp('reps', +e.target.value)}>
+            {getRepsNumbers().map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </Select>
+        </Box>
+      </Box>
+      <Box flex="0.2">
+        <Button onClick={removeWarmupSet} size="sm" p="1" fontSize="sm">
+          x
+        </Button>
+      </Box>
+    </Stack>
   )
 }
 

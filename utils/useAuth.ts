@@ -21,6 +21,15 @@ const defaultOneRepMaxProps = [
   },
 ]
 
+const defaultWarmupSetsProps = [
+  { id: 1, pct: 0, reps: 15 },
+  { id: 2, pct: 0.55, reps: 8 },
+  { id: 3, pct: 0.8, reps: 5 },
+  { id: 4, pct: 0.9, reps: 3 },
+]
+
+const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
+
 export const [useAuth, api] = create((set, get) => ({
   loading: true,
   user: null,
@@ -45,6 +54,9 @@ export const [useAuth, api] = create((set, get) => ({
                 settingsRef.set({
                   units: 'kg',
                   oneRepMaxProps: defaultOneRepMaxProps,
+                  warmupSetsProps: defaultWarmupSetsProps,
+                  currentWorkoutProps: [],
+                  plates: defaultPlates,
                 })
               }
             })
