@@ -23,6 +23,7 @@ import { db } from '../utils/firebase'
 import { useStore } from '../utils/store'
 import { useAuth } from '../utils/useAuth'
 import { Button, Select } from './lib'
+import { v4 as uuid } from 'uuid'
 
 const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
@@ -53,6 +54,20 @@ export function DrawerItemList() {
   )
 }
 
+function AcordionItemWrapper({ children, title }) {
+  return (
+    <AccordionItem borderColor="gray.900">
+      <AccordionHeader>
+        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
+          {title}
+        </Box>
+        <AccordionIcon />
+      </AccordionHeader>
+      <AccordionPanel mt="3">{children}</AccordionPanel>
+    </AccordionItem>
+  )
+}
+
 function OneRepMaxSettings({ settings }) {
   const { user } = useAuth()
 
@@ -62,66 +77,58 @@ function OneRepMaxSettings({ settings }) {
       .doc(user.uid)
       .set(
         {
-          oneRepMaxProps: [...settings.oneRepMaxProps, { id: settings.oneRepMaxProps.length + 1, shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }],
+          oneRepMaxProps: [...settings.oneRepMaxProps, { id: uuid(), shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }],
         },
         { merge: true }
       )
   }
 
   return (
-    <AccordionItem borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
-          One Rep Max
+    <AcordionItemWrapper title="One Rep Max">
+      <Stack isInline fontWeight="bold" mb="2">
+        <Box flex="0.6">
+          <Text>NAME</Text>
         </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel mt="3">
-        <Stack isInline fontWeight="bold" mb="2">
-          <Box flex="0.6">
-            <Text>NAME</Text>
-          </Box>
-          <Box flex="1">
-            <Text textAlign="center">RPE</Text>
-          </Box>
-          <Box flex="1">
-            <Text textAlign="center">REPS</Text>
-          </Box>
-          <Box flex="1">
-            <Text textAlign="center">WEIGHT</Text>
-          </Box>
-          <Box flex="0.6">
-            <Text textAlign="end">1RM</Text>
-          </Box>
-        </Stack>
-        <Stack spacing="4" shouldWrapChildren>
-          {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
-            const props = { shortName, id, rpe, reps, weightKg, weightLbs }
-            return <OneRepMaxItem key={id} {...props} settings={settings} />
-          })}
-        </Stack>
+        <Box flex="1">
+          <Text textAlign="center">RPE</Text>
+        </Box>
+        <Box flex="1">
+          <Text textAlign="center">REPS</Text>
+        </Box>
+        <Box flex="1">
+          <Text textAlign="center">WEIGHT</Text>
+        </Box>
+        <Box flex="0.6">
+          <Text textAlign="end">1RM</Text>
+        </Box>
+      </Stack>
+      <Stack spacing="4" shouldWrapChildren>
+        {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
+          const props = { shortName, id, rpe, reps, weightKg, weightLbs }
+          return <OneRepMaxItem key={id} {...props} settings={settings} />
+        })}
+      </Stack>
 
-        <Button
-          mt="4"
-          width="full"
-          onClick={addNewExercise}
-          size="lg"
-          rounded="full"
-          fontSize="xl"
-          border="4px solid"
-          borderColor="cyan.300"
-          fontWeight="bold"
-          variant="ghost"
-          color="cyan.300"
-          _hover={{
-            bg: 'cyan.300',
-            color: 'gray.900',
-          }}
-        >
-          Add Exercise
-        </Button>
-      </AccordionPanel>
-    </AccordionItem>
+      <Button
+        mt="4"
+        width="full"
+        onClick={addNewExercise}
+        size="lg"
+        rounded="full"
+        fontSize="xl"
+        border="4px solid"
+        borderColor="cyan.300"
+        fontWeight="bold"
+        variant="ghost"
+        color="cyan.300"
+        _hover={{
+          bg: 'cyan.300',
+          color: 'gray.900',
+        }}
+      >
+        Add Exercise
+      </Button>
+    </AcordionItemWrapper>
   )
 }
 
@@ -220,22 +227,14 @@ function UnitsSettings({ settings }) {
   }
 
   return (
-    <AccordionItem borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
-          Units
-        </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel pb={4} mt="3">
-        <Stack isInline align="center">
-          <FormLabel htmlFor="units" textTransform="capitalize" width="10" fontWeight="bold">
-            {settings.units}
-          </FormLabel>
-          <Switch isChecked={settings.units === 'kg'} size="lg" id="units" onChange={updateUnits} />
-        </Stack>
-      </AccordionPanel>
-    </AccordionItem>
+    <AcordionItemWrapper title="Units">
+      <Stack isInline align="center">
+        <FormLabel htmlFor="units" textTransform="capitalize" width="10" fontWeight="bold">
+          {settings.units}
+        </FormLabel>
+        <Switch isChecked={settings.units === 'kg'} size="lg" id="units" onChange={updateUnits} />
+      </Stack>
+    </AcordionItemWrapper>
   )
 }
 
@@ -277,115 +276,94 @@ function PlatesSettings({ settings }) {
   const { plates } = useStore((store) => store)
   const { updatePlates } = useStore((store) => store.actions)
   return (
-    <AccordionItem borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
-          Available plates
+    <AcordionItemWrapper title="Available plates">
+      <Stack spacing="4">
+        <Box ml="1">
+          <Text fontWeight="black">KG</Text>
         </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel mt="3">
-        <Stack spacing="4">
-          <Box ml="1">
-            <Text fontWeight="black">KG</Text>
-          </Box>
-          <Stack isInline flexWrap="wrap" spacing="0">
-            {defaultPlates?.kg.map((plate) => (
-              <Box key={plate}>
-                <ButtonPlate onClick={() => updatePlates('kg', plate)} isActive={plates?.kg.includes(plate)}>
-                  {plate}
-                </ButtonPlate>
-              </Box>
-            ))}
-          </Stack>
-          <Box>
-            <Text fontWeight="black">LBS</Text>
-          </Box>
-          <Stack isInline flexWrap="wrap" spacing="0">
-            {defaultPlates?.lbs.map((plate) => (
-              <Box key={plate}>
-                <ButtonPlate onClick={() => updatePlates('lbs', plate)} isActive={plates?.lbs.includes(plate)}>
-                  {plate}
-                </ButtonPlate>
-              </Box>
-            ))}
-          </Stack>
+        <Stack isInline flexWrap="wrap" spacing="0">
+          {defaultPlates?.kg.map((plate) => (
+            <Box key={plate}>
+              <ButtonPlate onClick={() => updatePlates('kg', plate)} isActive={plates?.kg.includes(plate)}>
+                {plate}
+              </ButtonPlate>
+            </Box>
+          ))}
         </Stack>
-      </AccordionPanel>
-    </AccordionItem>
+        <Box>
+          <Text fontWeight="black">LBS</Text>
+        </Box>
+        <Stack isInline flexWrap="wrap" spacing="0">
+          {defaultPlates?.lbs.map((plate) => (
+            <Box key={plate}>
+              <ButtonPlate onClick={() => updatePlates('lbs', plate)} isActive={plates?.lbs.includes(plate)}>
+                {plate}
+              </ButtonPlate>
+            </Box>
+          ))}
+        </Stack>
+      </Stack>
+    </AcordionItemWrapper>
   )
 }
 
 function WarmupSettings({ settings }) {
   const { user } = useAuth()
 
-  // const updateSetProp = (prop, data) => {
-  //   const settingsRef = db.collection('settings').doc(user.uid)
-  //   const warmupSetsProps = [...settings.warmupSetsProps]
-  //   warmupSetsProps.find((element) => element.id == id)[prop] = +data
-  //   settingsRef.set({ warmupSetsProps }, { merge: true })
-  // }
-
   const addWarmupSet = () => {
     const settingsRef = db.collection('settings').doc(user.uid)
     settingsRef.set(
       {
-        warmupSetsProps: [...settings.warmupSetsProps, { id: settings.warmupSetsProps.length + 1, pct: 0.55, reps: 8 }],
+        warmupSetsProps: [...settings.warmupSetsProps, { id: uuid(), pct: 0.55, reps: 8 }],
       },
       { merge: true }
     )
   }
 
   return (
-    <AccordionItem borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
-          Warmup sets
-        </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel mt="3">
-        <Stack>
-          <Stack isInline fontWeight="bold">
-            <Box flex="0.2">
-              <Text>SET</Text>
-            </Box>
-            <Box flex="1">
-              <Text textAlign="center">PERCENT</Text>
-            </Box>
-            <Box flex="1">
-              <Text textAlign="center">REPS</Text>
-            </Box>
-            <Box flex="0.2" />
-          </Stack>
-          <Stack shouldWrapChildren>
-            {settings.warmupSetsProps.map((props, idx) => (
-              <WarmupSetItem key={props.id} {...props} idx={idx} settings={settings} />
-            ))}
-          </Stack>
-
-          <Box>
-            <Button
-              bg="gray.900"
-              color="gray.100"
-              size="lg"
-              width="full"
-              _hover={{
-                bg: 'gray.700',
-              }}
-              onClick={addWarmupSet}
-            >
-              Add
-            </Button>
+    <AcordionItemWrapper title="Warmup sets">
+      <Stack>
+        <Stack isInline fontWeight="bold">
+          <Box flex="0.2">
+            <Text>SET</Text>
           </Box>
+          <Box flex="1">
+            <Text textAlign="center">PERCENT</Text>
+          </Box>
+          <Box flex="1">
+            <Text textAlign="center">REPS</Text>
+          </Box>
+          <Box flex="0.2" />
         </Stack>
-      </AccordionPanel>
-    </AccordionItem>
+        <Stack shouldWrapChildren>
+          {settings.warmupSetsProps.map((props, idx) => (
+            <WarmupSetItem key={props.id} {...props} idx={idx} settings={settings} />
+          ))}
+        </Stack>
+
+        <Box>
+          <Button
+            bg="gray.900"
+            color="gray.100"
+            size="lg"
+            width="full"
+            _hover={{
+              bg: 'gray.700',
+            }}
+            onClick={addWarmupSet}
+          >
+            Add
+          </Button>
+        </Box>
+      </Stack>
+    </AcordionItemWrapper>
   )
 }
 
 function WarmupSetItem({ pct, reps, id, idx, settings }) {
   const { user } = useAuth()
+
+  const isRemoveDisabled = settings.warmupSetsProps.length <= 3
 
   const updateSetProp = (prop, data) => {
     const settingsRef = db.collection('settings').doc(user.uid)
@@ -395,6 +373,7 @@ function WarmupSetItem({ pct, reps, id, idx, settings }) {
   }
 
   const removeWarmupSet = () => {
+    if (isRemoveDisabled) return
     const settingsRef = db.collection('settings').doc(user.uid)
     const updatedSetsProps = settings.warmupSetsProps.filter((item) => item.id !== id)
     settingsRef.set(
@@ -433,7 +412,7 @@ function WarmupSetItem({ pct, reps, id, idx, settings }) {
         </Box>
       </Box>
       <Box flex="0.2">
-        <Button onClick={removeWarmupSet} size="sm" p="1" fontSize="sm">
+        <Button isDisabled={isRemoveDisabled} onClick={removeWarmupSet} size="sm" p="1" fontSize="sm">
           x
         </Button>
       </Box>
