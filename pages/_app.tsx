@@ -3,18 +3,22 @@ import { ThemeProvider, CSSReset, Button } from '@chakra-ui/core'
 import { AppProps, AppContext } from 'next/app'
 import { useAuth } from '../utils/useAuth'
 import { useRouter } from 'next/dist/client/router'
+import { useStore } from '../utils/store'
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { listenForAuthStateChange } = useAuth((store) => store.actions)
   const router = useRouter()
-  useEffect(
-    () =>
-      listenForAuthStateChange(
-        () => router.push('/'),
-        () => router.push('/signin')
-      ),
-    []
-  )
+  const { user } = useAuth((store) => store)
+  const { listenForAuthStateChange } = useAuth((store) => store.actions)
+  const { getUserSettings } = useStore((store) => store.actions)
+
+  useEffect(() => {
+    listenForAuthStateChange({ onSuccess: () => router.push('/'), onFailure: () => router.push('/signin') })
+  }, [])
+
+  useEffect(() => {
+    if (!user) return
+    return getUserSettings(user.uid)
+  }, [user])
 
   return (
     <ThemeProvider>

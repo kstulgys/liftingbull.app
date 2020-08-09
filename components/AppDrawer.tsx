@@ -1,17 +1,32 @@
-import { useRef } from 'react'
-import { useDisclosure, Flex, Button, Icon, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerBody, DrawerFooter } from '@chakra-ui/core'
+import React, { useRef } from 'react'
+import {
+  Button as BaseButton,
+  Stack,
+  useDisclosure,
+  Flex,
+  Icon,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerBody,
+  DrawerFooter,
+} from '@chakra-ui/core'
 import { DrawerItemList } from './DrawerItemList'
+import { useAuth } from '../utils/useAuth'
+import { Button } from '../components/lib'
 
 export function AppDrawer() {
+  const { signout, signInWithGoogle } = useAuth((state) => state.actions)
   const { isOpen, onOpen, onClose } = useDisclosure(false)
   const btnRef = useRef()
 
   return (
     <>
       <Flex>
-        <Button ml="auto" bg="gray.900" variant="unstyled" onClick={onOpen} ref={btnRef}>
+        <BaseButton ml="auto" bg="gray.900" variant="unstyled" onClick={onOpen} ref={btnRef}>
           <Icon name="drag-handle" transform="rotate(90deg)" size="10" color="teal.300" />
-        </Button>
+        </BaseButton>
       </Flex>
 
       <Drawer size="sm" isOpen={isOpen} placement="right" onClose={onClose}>
@@ -23,19 +38,25 @@ export function AppDrawer() {
             <DrawerItemList />
           </DrawerBody>
 
-          <DrawerFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              color="blue"
-              onClick={() => {
-                window.localStorage.clear()
-                window.location.reload()
-              }}
-            >
-              Reset
-            </Button>
+          <DrawerFooter p="2">
+            <Stack isInline spacing="2" alignItems="center" width="full">
+              <Button width="full" onClick={onClose} fontSize="md">
+                Close
+              </Button>
+              <Button
+                fontSize="md"
+                width="full"
+                onClick={() => {
+                  window.localStorage.clear()
+                  window.location.reload()
+                }}
+              >
+                Reset
+              </Button>
+              <Button fontSize="md" width="full" onClick={signout}>
+                Sign out
+              </Button>
+            </Stack>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

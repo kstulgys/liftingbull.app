@@ -157,3 +157,21 @@ export function getKgAndLbs(units, weight): { weightKg: number; weightLbs: numbe
     return { weightLbs, weightKg }
   }
 }
+
+interface calculateOneRepMaxProps {
+  weightKg: number
+  weightLbs: number
+  units: string
+  rpe: number
+  reps: number
+}
+
+export function calculateOneRepMax(props: calculateOneRepMaxProps) {
+  const { weightKg, weightLbs, units, rpe, reps } = props
+  const weight = units === 'kg' ? weightKg : weightLbs
+  if (units === 'kg') {
+    return calcOneRepMaxKg(rpe, reps, weight)
+  } else {
+    return calcOneRepMaxLbs(rpe, reps, weight)
+  }
+}

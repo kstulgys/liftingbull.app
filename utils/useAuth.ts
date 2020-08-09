@@ -1,81 +1,43 @@
-import cookie from 'js-cookie'
 import create from 'zustand'
 import { firebase, db } from '../utils/firebase'
-
-const defaultOneRepMaxProps = [
-  {
-    id: 1,
-    shortName: 'sq',
-    weightKg: 200,
-    weightLbs: 441,
-    reps: 5,
-    rpe: 10,
-  },
-  {
-    id: 2,
-    shortName: 'dl',
-    weightKg: 200,
-    weightLbs: 441,
-    reps: 5,
-    rpe: 10,
-  },
-]
-
-const defaultWarmupSetsProps = [
-  { id: 1, pct: 0, reps: 15 },
-  { id: 2, pct: 0.55, reps: 8 },
-  { id: 3, pct: 0.8, reps: 5 },
-  { id: 4, pct: 0.9, reps: 3 },
-]
-
-const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
 export const [useAuth, api] = create((set, get) => ({
   loading: true,
   user: null,
   actions: {
-    listenForAuthStateChange: (cbSuccess, cbFailure) => {
+    listenForAuthStateChange: ({ onSuccess, onFailure }) => {
       set({ loading: true })
-      const tokenName = 'liftingbull-app-token'
 
-      return firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-          const { displayName, email, uid } = user
-          const userRef = db.collection('users').doc(uid)
-          const settingsRef = db.collection('settings').doc(uid)
+      // firebase.auth().onAuthStateChanged(async (user) => {
+      //   if (user) {
+      //     const { displayName, email, uid } = user
+      const userRef = db.collection('users').doc('1wpf1qe4tYfj2UV9tOTNJKed5s63')
+      try {
+        userRef.get().then((doc) => {
+          if (doc.exists) {
+            set({ user: { ...doc.data(), loading: false } })
+            onSuccess()
+          } else {
+            set({ user: null, loading: false })
+            onFailure()
 
-          userRef
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                set({ user: { ...doc.data(), loading: false } })
-              } else {
-                userRef.set({ uid, displayName, email })
-                settingsRef.set({
-                  units: 'kg',
-                  oneRepMaxProps: defaultOneRepMaxProps,
-                  warmupSetsProps: defaultWarmupSetsProps,
-                  currentWorkoutProps: [],
-                  plates: defaultPlates,
-                })
-              }
-            })
-            .catch((error) => {
-              console.log('Error getting document:', error)
-            })
-          const token = await user.getIdToken()
-          cookie.set(tokenName, token, { expires: 365 })
-          cbSuccess()
-        } else {
-          cookie.remove(tokenName)
-          set({ user: null, loading: false })
-          cbFailure()
-        }
-      })
+            // userRef.set({ uid, displayName, email })
+          }
+        })
+      } catch (error) {
+        console.log('Error getting document:', { error })
+        set({ user: null, loading: false })
+        onFailure()
+      }
+      //   } else {
+      //     set({ user: null, loading: false })
+      //     onFailure()
+      //   }
+      // })
     },
     signInWithGoogle: () => {
       const provider = new firebase.auth.GoogleAuthProvider()
-      return firebase
+      firebase
         .auth()
         .signInWithPopup(provider)
         .then(function (result) {

@@ -18,7 +18,17 @@ import {
   EditablePreview,
 } from '@chakra-ui/core'
 import { useEffect, useState } from 'react'
-import { calcOneRepMaxKg, calcOneRepMaxLbs, getKgAndLbs, getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
+import {
+  calcOneRepMaxKg,
+  calcOneRepMaxLbs,
+  calculateOneRepMax,
+  getKgAndLbs,
+  getRepsList,
+  getRepsNumbers,
+  getRpeList,
+  getWeightNumbers,
+  getWeightPercents,
+} from '../utils'
 import { db } from '../utils/firebase'
 import { useStore } from '../utils/store'
 import { useAuth } from '../utils/useAuth'
@@ -63,7 +73,9 @@ function AcordionItemWrapper({ children, title }) {
         </Box>
         <AccordionIcon />
       </AccordionHeader>
-      <AccordionPanel mt="3">{children}</AccordionPanel>
+      <AccordionPanel mt="3" p="2">
+        {children}
+      </AccordionPanel>
     </AccordionItem>
   )
 }
@@ -137,7 +149,6 @@ function OneRepMaxItem(props) {
   const { user } = useAuth()
 
   const weight = settings.units === 'kg' ? weightKg : weightLbs
-  const calculateOneRepMax = settings.units === 'kg' ? calcOneRepMaxKg : calcOneRepMaxLbs
   const settingsRef = db.collection('settings').doc(user.uid)
 
   const updateOneRepMaxProp = (prop, data) => {
@@ -166,13 +177,13 @@ function OneRepMaxItem(props) {
 
   return (
     <Stack key={id} isInline alignItems="center" spacing="1" fontWeight="bold" fontSize="lg">
-      <Box flex="0.6">
+      <Box flex="0.5">
         <Editable placeholder="XXX" defaultValue={shortName} onSubmit={updateNameProp}>
           <EditablePreview />
           <EditableInput height="8" />
         </Editable>
       </Box>
-      <Box flex="1">
+      <Box flex="0.9">
         <Select value={rpe} onChange={(e) => updateOneRepMaxProp('rpe', +e.target.value)}>
           {getRpeList().map((num) => (
             <option key={num} value={num}>
@@ -181,7 +192,7 @@ function OneRepMaxItem(props) {
           ))}
         </Select>
       </Box>
-      <Box flex="1">
+      <Box flex="0.8">
         <Select value={reps} onChange={(e) => updateOneRepMaxProp('reps', +e.target.value)}>
           {getRepsList().map((num) => (
             <option key={num} value={num}>
@@ -200,12 +211,12 @@ function OneRepMaxItem(props) {
         </Select>
       </Box>
       <Box
-        flex="0.6"
+        flex="0.5"
         onDoubleClick={() => {
           if (window.confirm('Are you sure you want to delete this exercise?')) removeExercise()
         }}
       >
-        <Text textAlign="end">{calculateOneRepMax(rpe, reps, weight)}</Text>
+        <Text textAlign="end">{calculateOneRepMax({ weightKg, weightLbs, units: settings.units, rpe, reps })}</Text>
       </Box>
     </Stack>
   )

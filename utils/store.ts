@@ -1,6 +1,7 @@
 import create from 'zustand'
 import { v4 as uuid } from 'uuid'
 import { readOrWriteStorage, calcOneRepMaxKg, calcOneRepMaxLbs } from '.'
+import { db } from '../utils/firebase'
 
 const defaultWarmupSetsProps = [
   { id: 1, percent: 0, reps: 15 },
@@ -38,8 +39,19 @@ const initialState: State = {
 }
 
 export const [useStore, api] = create((set, get) => ({
-  ...initialState,
+  currentWorkoutProps: null,
+  oneRepMaxProps: null,
+  plates: null,
+  units: null,
+  warmupSetsProps: null,
+
   actions: {
+    getUserSettings: (uid) => {
+      const userRef = db.collection('settings').doc(uid)
+      return userRef.onSnapshot((doc) => {
+        set({ ...doc.data(), userRef })
+      })
+    },
     // INITIALIZE STORE
     initializeState: () => {
       set({
