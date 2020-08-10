@@ -88,7 +88,7 @@ function ExerciseList() {
   const { currentWorkoutProps, oneRepMaxProps } = useStore((store) => store)
 
   return (
-    <Stack spacing="4" mt="2">
+    <Stack spacing="4" mt="2" shouldWrapChildren>
       {currentWorkoutProps?.map((exercise) => {
         return <ExerciseListItem key={exercise.id} exercise={exercise} />
       })}
@@ -175,7 +175,7 @@ function ExerciseListItem({ exercise }) {
         </Box>
       </Stack>
       <ExerciseProps exercise={exercise} />
-      {/* <ExerciseSets exercise={exercise} /> */}
+      <ExerciseSets exercise={exercise} />
     </Stack>
   )
 }

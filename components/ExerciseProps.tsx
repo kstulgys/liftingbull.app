@@ -4,8 +4,7 @@ import { calculateOneRepMax, getRepsList, getRpeList, getWorksetWeight } from '.
 import { useStore } from '../utils/store'
 
 export function ExerciseProps({ exercise }) {
-  const { oneRepMaxProps, userRef, currentWorkoutProps } = useStore((store) => store)
-  const { units } = useStore((store) => store)
+  const { oneRepMaxProps, userRef, currentWorkoutProps, units } = useStore((store) => store)
 
   const updateExerciseSet = (id, prop, data) => {
     const itemCopy = [...currentWorkoutProps]
@@ -22,8 +21,8 @@ export function ExerciseProps({ exercise }) {
   const removeWorkoutSet = (idx) => {
     const itemCopy = [...currentWorkoutProps]
     const exerciseIdx = itemCopy.findIndex((item) => item.id === exercise.id)
+    if (itemCopy[exerciseIdx].sets.length === 1) return
     itemCopy[exerciseIdx].sets.splice(idx, 1)
-
     userRef.set(
       {
         currentWorkoutProps: itemCopy,

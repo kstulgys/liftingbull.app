@@ -1,15 +1,13 @@
 import { Stack, Box, Text, Accordion, AccordionItem, AccordionHeader, AccordionPanel, AccordionIcon } from '@chakra-ui/core'
-import { getPlatesOnBar, getWorksetWeight } from '../utils'
+import { calculateOneRepMax, getPlatesOnBar, getWorksetWeight } from '../utils'
 import { useStore } from '../utils/store'
 
 export function ExerciseSets({ exercise }) {
-  const { plates, oneRepMax, units } = useStore((store) => store)
-  if (!oneRepMax.length) return null
-
-  const oneRM = oneRepMax?.find((item) => item.name === exercise.name)?.weight
-  const oneRMWeight = units === 'kg' ? oneRM.kg : oneRM.lbs
+  const { oneRepMaxProps, units, plates } = useStore((store) => store)
 
   const currentPlates = units === 'kg' ? plates.kg : plates.lbs
+  const oneRM = oneRepMaxProps.find((item) => item.shortName === exercise.shortName)
+  const oneRMWeight = calculateOneRepMax({ weightKg: oneRM['weightKg'], weightLbs: oneRM['weightLbs'], units, rpe: oneRM.rpe, reps: oneRM.reps })
 
   return (
     <Accordion allowToggle defaultIndex={[999]} allowMultiple>
@@ -60,7 +58,8 @@ function WarmupSets({ exercise, oneRM, currentPlates }) {
   const { warmupSetsProps } = useStore((store) => store)
 
   const workSet = exercise.sets[0]
-  const weight = oneRM && getWorksetWeight(workSet.rpe, workSet.reps, oneRM)
+  console.log({ workSet })
+  const weight = workSet && getWorksetWeight(workSet.rpe, workSet.reps, oneRM)
 
   return (
     <AccordionItem fontWeight="bold" _expanded={{ borderColor: 'gray.900' }} borderColor="gray.900">
@@ -73,8 +72,8 @@ function WarmupSets({ exercise, oneRM, currentPlates }) {
       <AccordionPanel pb={4}>
         <Stack>
           {weight &&
-            warmupSetsProps?.map(({ percent, reps, id }, idx) => {
-              const warmupWeight = Math.round(weight * percent)
+            warmupSetsProps?.map(({ pct, reps, id }, idx) => {
+              const warmupWeight = Math.round(weight * pct)
               return (
                 <Stack key={id} isInline>
                   <Box flex="0.15">
@@ -82,7 +81,7 @@ function WarmupSets({ exercise, oneRM, currentPlates }) {
                   </Box>
                   <Box flex="0.6">
                     <Text>
-                      {Math.round(percent * 100)}% ({warmupWeight})
+                      {Math.round(pct * 100)}% ({warmupWeight})
                     </Text>
                   </Box>
                   <Box flex="1">
