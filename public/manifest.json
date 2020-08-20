@@ -1,6 +1,6 @@
 {
-    "short_name": "LiftingBull",
-    "name": "Lifting-Bull",
+  "name": "Lifting-Bull",
+  "short_name": "LiftingBull",
     "description": "Workout planner and weight calculator based on rate of perceived exertion",
     "lang": "en-GB",
     "icons": [
@@ -20,8 +20,9 @@
         "sizes": "512x512"
       }
     ],
-    "start_url": "/?source=pwa",
+    "theme_color": "#FFFFFF",
     "background_color": "#FFFFFF",
+    "start_url": "/",
     "display": "standalone",
-    "theme_color": "#3f51b5"
+    "orientation": "portrait"
   }
