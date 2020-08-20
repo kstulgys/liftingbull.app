@@ -84,6 +84,7 @@ export function getWeightPercents() {
     .fill(null)
     .map((_, idx) => {
       const numString = idx + 1 + ''
+      if (idx + 1 <= 9) return null
       if (numString[numString.length - 1] === '0' || numString[numString.length - 1] === '5') {
         return (idx + 1) / 100
       }

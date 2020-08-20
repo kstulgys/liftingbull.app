@@ -42,7 +42,7 @@ export function DrawerItemList() {
 function AcordionItemWrapper({ children, title }) {
   return (
     <AccordionItem borderColor="gray.900">
-      <AccordionHeader>
+      <AccordionHeader px="2">
         <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
           {title}
         </Box>
@@ -88,26 +88,7 @@ function OneRepMaxSettings() {
           return <OneRepMaxItem key={props.id} {...props} />
         })}
       </Stack>
-
-      <Button
-        mt="4"
-        width="full"
-        onClick={addNewExercise}
-        size="lg"
-        rounded="full"
-        fontSize="xl"
-        border="4px solid"
-        borderColor="cyan.300"
-        fontWeight="bold"
-        variant="ghost"
-        color="cyan.300"
-        _hover={{
-          bg: 'cyan.300',
-          color: 'gray.900',
-        }}
-      >
-        Add Exercise
-      </Button>
+      <Button mt="4">Add Exercise</Button>
     </AcordionItemWrapper>
   )
 }

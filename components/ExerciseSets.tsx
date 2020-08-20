@@ -8,7 +8,6 @@ export function ExerciseSets({ exercise }) {
   const currentPlates = units === 'kg' ? plates.kg : plates.lbs
   const oneRM = oneRepMaxProps.find((item) => item.shortName === exercise.shortName)
   const oneRMWeight = calculateOneRepMax({ weightKg: oneRM['weightKg'], weightLbs: oneRM['weightLbs'], units, rpe: oneRM.rpe, reps: oneRM.reps })
-
   return (
     <Accordion allowToggle defaultIndex={[999]} allowMultiple>
       <WarmupSets exercise={exercise} oneRM={oneRMWeight} currentPlates={currentPlates} />

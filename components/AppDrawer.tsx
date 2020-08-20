@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/core'
 import { DrawerItemList } from './DrawerItemList'
 import { useAuth } from '../utils/useAuth'
-import { Button } from '../components/lib'
+import { Button } from './lib'
 
 export function AppDrawer() {
   const { signout, signInWithGoogle } = useAuth((state) => state.actions)
@@ -38,7 +38,7 @@ export function AppDrawer() {
             <DrawerItemList />
           </DrawerBody>
 
-          <DrawerFooter p="2">
+          <DrawerFooter p="2" mb="10">
             <Stack isInline spacing="2" alignItems="center" width="full">
               <Button width="full" onClick={onClose} fontSize="md">
                 Close
