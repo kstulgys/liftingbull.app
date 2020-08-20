@@ -20,13 +20,13 @@ export function ExerciseSets({ exercise }) {
 function WorkSets({ exercise, oneRM, currentPlates }) {
   return (
     <AccordionItem fontWeight="bold" borderColor="gray.900">
-      <AccordionHeader fontWeight="bold">
+      <AccordionHeader fontWeight="bold" px="2">
         <Box flex="1" textAlign="left">
           Work sets
         </Box>
         <AccordionIcon />
       </AccordionHeader>
-      <AccordionPanel pb={4}>
+      <AccordionPanel pb={4} fontSize="lg" p="2">
         <Stack>
           {exercise.sets.map(({ rpe, reps, id }, idx) => {
             const worksetWeight = getWorksetWeight(rpe, reps, oneRM)
@@ -36,7 +36,7 @@ function WorkSets({ exercise, oneRM, currentPlates }) {
                 <Box flex="0.15">
                   <Text>{idx + 1}.</Text>
                 </Box>
-                <Box flex="0.6">
+                <Box flex="0.3">
                   <Text>{worksetWeight}</Text>
                 </Box>
                 <Box flex="1">
@@ -56,20 +56,18 @@ function WorkSets({ exercise, oneRM, currentPlates }) {
 
 function WarmupSets({ exercise, oneRM, currentPlates }) {
   const { warmupSetsProps } = useStore((store) => store)
-
   const workSet = exercise.sets[0]
-  console.log({ workSet })
   const weight = workSet && getWorksetWeight(workSet.rpe, workSet.reps, oneRM)
 
   return (
     <AccordionItem fontWeight="bold" _expanded={{ borderColor: 'gray.900' }} borderColor="gray.900">
-      <AccordionHeader fontWeight="bold">
+      <AccordionHeader fontWeight="bold" px="2">
         <Box flex="1" textAlign="left">
           Warmup sets
         </Box>
         <AccordionIcon />
       </AccordionHeader>
-      <AccordionPanel pb={4}>
+      <AccordionPanel pb={4} fontSize="lg" p="2">
         <Stack>
           {weight &&
             warmupSetsProps?.map(({ pct, reps, id }, idx) => {

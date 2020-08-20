@@ -1,39 +1,61 @@
 import create from 'zustand'
 import { firebase, db } from '../utils/firebase'
+import { v4 as uuid } from 'uuid'
+
+const defaultWarmupSetsProps = [
+  { id: 1, percent: 0, reps: 15 },
+  { id: 2, percent: 0.55, reps: 8 },
+  { id: 3, percent: 0.8, reps: 5 },
+  { id: 4, percent: 0.9, reps: 3 },
+]
+const defaultOneRepMaxProps = [
+  { id: uuid(), shortName: 'DL', rpe: 10, reps: 5, weightKg: 200, weightLbs: 441 },
+  { id: uuid(), shortName: 'SQ', rpe: 10, reps: 5, weightKg: 200, weightLbs: 441 },
+]
+const defaultCurrentWorkoutProps = []
+const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
+const defaultUnits = 'kg'
 
 export const [useAuth, api] = create((set, get) => ({
   loading: true,
   user: null,
+  userRef: null,
   actions: {
     listenForAuthStateChange: ({ onSuccess, onFailure }) => {
       set({ loading: true })
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          const { displayName, email, uid } = user
+          const userRef = db.collection('users').doc(uid)
+          const settingsRef = db.collection('settings').doc(uid)
 
-      // firebase.auth().onAuthStateChanged(async (user) => {
-      //   if (user) {
-      //     const { displayName, email, uid } = user
-      const userRef = db.collection('users').doc('1wpf1qe4tYfj2UV9tOTNJKed5s63')
-      try {
-        userRef.get().then((doc) => {
-          if (doc.exists) {
-            set({ user: { ...doc.data(), loading: false } })
-            onSuccess()
-          } else {
+          try {
+            userRef.get().then((doc) => {
+              if (doc.exists) {
+                set({ user: { ...doc.data() }, userRef, loading: false })
+                onSuccess()
+              } else {
+                userRef.set({ uid, displayName, email })
+                settingsRef.set({
+                  units: defaultUnits,
+                  currentWorkoutProps: defaultCurrentWorkoutProps,
+                  plates: defaultPlates,
+                  warmupSetsProps: defaultWarmupSetsProps,
+                  oneRepMaxProps: defaultOneRepMaxProps,
+                })
+                set({ user: { uid, displayName, email }, loading: false, userRef })
+              }
+            })
+          } catch (error) {
+            console.log('Error getting document:', { error })
             set({ user: null, loading: false })
             onFailure()
-
-            // userRef.set({ uid, displayName, email })
           }
-        })
-      } catch (error) {
-        console.log('Error getting document:', { error })
-        set({ user: null, loading: false })
-        onFailure()
-      }
-      //   } else {
-      //     set({ user: null, loading: false })
-      //     onFailure()
-      //   }
-      // })
+        } else {
+          set({ user: null, loading: false })
+          onFailure()
+        }
+      })
     },
     signInWithGoogle: () => {
       const provider = new firebase.auth.GoogleAuthProvider()

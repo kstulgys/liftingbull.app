@@ -1,5 +1,4 @@
 import {
-  // Button,
   Accordion,
   AccordionItem,
   AccordionHeader,
@@ -8,28 +7,15 @@ import {
   Box,
   Stack,
   Text,
-  // Select,
   Switch,
   FormLabel,
-  useDisclosure,
-  Input,
   Editable,
   EditableInput,
   EditablePreview,
+  Spinner,
 } from '@chakra-ui/core'
-import { useEffect, useState } from 'react'
-import {
-  calcOneRepMaxKg,
-  calcOneRepMaxLbs,
-  calculateOneRepMax,
-  getKgAndLbs,
-  getRepsList,
-  getRepsNumbers,
-  getRpeList,
-  getWeightNumbers,
-  getWeightPercents,
-} from '../utils'
-import { db } from '../utils/firebase'
+import { useState } from 'react'
+import { calculateOneRepMax, getKgAndLbs, getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
 import { useStore } from '../utils/store'
 import { useAuth } from '../utils/useAuth'
 import { Button, Select } from './lib'
@@ -39,25 +25,14 @@ const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45,
 
 export function DrawerItemList() {
   const { user } = useAuth()
-  const [settings, setSettings] = useState(null)
-
-  useEffect(() => {
-    if (!user) return
-    return db.collection('settings').onSnapshot((snap) => {
-      snap.forEach((doc) => {
-        setSettings({ ...doc.data() })
-      })
-    })
-  }, [user])
-
-  if (!user || !settings) return null
+  if (!user) return null
 
   return (
     <Accordion defaultIndex={[999]} allowToggle>
-      <OneRepMaxSettings settings={settings} />
-      <WarmupSettings settings={settings} />
-      <UnitsSettings settings={settings} />
-      <PlatesSettings settings={settings} />
+      <OneRepMaxSettings />
+      <WarmupSettings />
+      <UnitsSettings />
+      <PlatesSettings />
       {/* <VariantsSettings /> */}
       {/* <WorkoutSettings /> */}
     </Accordion>
@@ -80,19 +55,13 @@ function AcordionItemWrapper({ children, title }) {
   )
 }
 
-function OneRepMaxSettings({ settings }) {
-  const { user } = useAuth()
+function OneRepMaxSettings() {
+  const { oneRepMaxProps, units, settingsRef } = useStore((store) => store)
 
   const addNewExercise = () => {
-    const { weightKg, weightLbs } = getKgAndLbs(settings.units, 200)
-    db.collection('settings')
-      .doc(user.uid)
-      .set(
-        {
-          oneRepMaxProps: [...settings.oneRepMaxProps, { id: uuid(), shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }],
-        },
-        { merge: true }
-      )
+    const { weightKg, weightLbs } = getKgAndLbs(units, 200)
+    const newOneRepMaxProps = [...oneRepMaxProps, { id: uuid(), shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }]
+    settingsRef.set({ oneRepMaxProps: newOneRepMaxProps }, { merge: true })
   }
 
   return (
@@ -115,9 +84,8 @@ function OneRepMaxSettings({ settings }) {
         </Box>
       </Stack>
       <Stack spacing="4" shouldWrapChildren>
-        {settings?.oneRepMaxProps?.map(({ shortName, id, rpe, reps, weightKg, weightLbs }) => {
-          const props = { shortName, id, rpe, reps, weightKg, weightLbs }
-          return <OneRepMaxItem key={id} {...props} settings={settings} />
+        {oneRepMaxProps.map((props) => {
+          return <OneRepMaxItem key={props.id} {...props} />
         })}
       </Stack>
 
@@ -145,33 +113,32 @@ function OneRepMaxSettings({ settings }) {
 }
 
 function OneRepMaxItem(props) {
-  const { shortName, id, rpe, reps, weightKg, weightLbs, settings } = props
-  const { user } = useAuth()
+  const { shortName, id, rpe, reps, weightKg, weightLbs } = props
+  const { units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
 
-  const weight = settings.units === 'kg' ? weightKg : weightLbs
-  const settingsRef = db.collection('settings').doc(user.uid)
+  const weight = units === 'kg' ? weightKg : weightLbs
 
   const updateOneRepMaxProp = (prop, data) => {
-    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    const oneRepMaxProps = [...oneRepMaxPropsState]
     oneRepMaxProps.find((element) => element.id == id)[prop] = +data
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
 
   const updateWeightProp = (weight) => {
-    const { weightKg, weightLbs } = getKgAndLbs(settings.units, weight)
-    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    const { weightKg, weightLbs } = getKgAndLbs(units, weight)
+    const oneRepMaxProps = [...oneRepMaxPropsState]
     oneRepMaxProps.find((element) => element.id == id)['weightKg'] = weightKg
     oneRepMaxProps.find((element) => element.id == id)['weightLbs'] = weightLbs
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
 
   const updateNameProp = (value) => {
-    const oneRepMaxProps = [...settings.oneRepMaxProps]
+    const oneRepMaxProps = [...oneRepMaxPropsState]
     oneRepMaxProps.find((element) => element.id == id)['shortName'] = value
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
   const removeExercise = () => {
-    const oneRepMaxProps = settings.oneRepMaxProps.filter((item) => item.id !== id)
+    const oneRepMaxProps = oneRepMaxPropsState.filter((item) => item.id !== id)
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
 
@@ -203,7 +170,7 @@ function OneRepMaxItem(props) {
       </Box>
       <Box flex="1">
         <Select value={weight} onChange={(e) => updateWeightProp(+e.target.value)}>
-          {getWeightNumbers(settings.units).map((num) => (
+          {getWeightNumbers(units).map((num) => (
             <option key={num} value={num}>
               {num}
             </option>
@@ -216,34 +183,28 @@ function OneRepMaxItem(props) {
           if (window.confirm('Are you sure you want to delete this exercise?')) removeExercise()
         }}
       >
-        <Text textAlign="end">{calculateOneRepMax({ weightKg, weightLbs, units: settings.units, rpe, reps })}</Text>
+        <Text textAlign="end">{calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps })}</Text>
       </Box>
     </Stack>
   )
 }
 
-function UnitsSettings({ settings }) {
-  const { user } = useAuth()
+function UnitsSettings() {
+  const { settingsRef, units } = useStore((store) => store)
+  const [isLoading, setLoading] = useState(false)
 
   const updateUnits = () => {
-    const currentUnits = settings.units
-    db.collection('settings')
-      .doc(user.uid)
-      .set(
-        {
-          units: currentUnits === 'kg' ? 'lbs' : 'kg',
-        },
-        { merge: true }
-      )
+    setLoading(true)
+    settingsRef.set({ units: units === 'kg' ? 'lbs' : 'kg' }, { merge: true }).then(() => setLoading(false))
   }
 
   return (
     <AcordionItemWrapper title="Units">
-      <Stack isInline align="center">
+      <Stack isInline alignItems="center" height="10">
         <FormLabel htmlFor="units" textTransform="capitalize" width="10" fontWeight="bold">
-          {settings.units}
+          {units}
         </FormLabel>
-        <Switch isChecked={settings.units === 'kg'} size="lg" id="units" onChange={updateUnits} />
+        <Box>{isLoading ? <Spinner size="xs" /> : <Switch isChecked={units === 'kg'} size="lg" id="units" onChange={updateUnits} />}</Box>
       </Stack>
     </AcordionItemWrapper>
   )
@@ -283,9 +244,14 @@ function VariantsSettings() {
   )
 }
 
-function PlatesSettings({ settings }) {
-  const { plates } = useStore((store) => store)
-  const { updatePlates } = useStore((store) => store.actions)
+function PlatesSettings() {
+  const { plates, settingsRef } = useStore((store) => store)
+
+  const updatePlates = (units: string, plate: number) => {
+    const newPlates = plates[units].includes(plate) ? plates[units].filter((pl) => pl !== plate) : [...plates[units], plate]
+    settingsRef.set({ plates: { ...plates, [units]: newPlates.sort((a, b) => b - a) } }, { merge: true })
+  }
+
   return (
     <AcordionItemWrapper title="Available plates">
       <Stack spacing="4">
@@ -318,17 +284,11 @@ function PlatesSettings({ settings }) {
   )
 }
 
-function WarmupSettings({ settings }) {
-  const { user } = useAuth()
+function WarmupSettings() {
+  const { settingsRef, warmupSetsProps } = useStore((store) => store)
 
   const addWarmupSet = () => {
-    const settingsRef = db.collection('settings').doc(user.uid)
-    settingsRef.set(
-      {
-        warmupSetsProps: [...settings.warmupSetsProps, { id: uuid(), pct: 0.55, reps: 8 }],
-      },
-      { merge: true }
-    )
+    settingsRef.set({ warmupSetsProps: [...warmupSetsProps, { id: uuid(), pct: 0.55, reps: 8 }] }, { merge: true })
   }
 
   return (
@@ -347,8 +307,8 @@ function WarmupSettings({ settings }) {
           <Box flex="0.2" />
         </Stack>
         <Stack shouldWrapChildren>
-          {settings.warmupSetsProps.map((props, idx) => (
-            <WarmupSetItem key={props.id} {...props} idx={idx} settings={settings} />
+          {warmupSetsProps.map((props, idx) => (
+            <WarmupSetItem key={props.id} {...props} idx={idx} />
           ))}
         </Stack>
 
@@ -371,28 +331,21 @@ function WarmupSettings({ settings }) {
   )
 }
 
-function WarmupSetItem({ pct, reps, id, idx, settings }) {
-  const { user } = useAuth()
+function WarmupSetItem({ pct, reps, id, idx }) {
+  const { settingsRef, warmupSetsProps: warmupSetsPropsState } = useStore((store) => store)
 
-  const isRemoveDisabled = settings.warmupSetsProps.length <= 3
+  const isRemoveDisabled = warmupSetsPropsState.length <= 3
 
   const updateSetProp = (prop, data) => {
-    const settingsRef = db.collection('settings').doc(user.uid)
-    const warmupSetsProps = [...settings.warmupSetsProps]
+    const warmupSetsProps = [...warmupSetsPropsState]
     warmupSetsProps.find((element) => element.id == id)[prop] = +data
     settingsRef.set({ warmupSetsProps }, { merge: true })
   }
 
   const removeWarmupSet = () => {
     if (isRemoveDisabled) return
-    const settingsRef = db.collection('settings').doc(user.uid)
-    const updatedSetsProps = settings.warmupSetsProps.filter((item) => item.id !== id)
-    settingsRef.set(
-      {
-        warmupSetsProps: updatedSetsProps,
-      },
-      { merge: true }
-    )
+    const updatedSetsProps = warmupSetsPropsState.filter((item) => item.id !== id)
+    settingsRef.set({ warmupSetsProps: updatedSetsProps }, { merge: true })
   }
 
   return (
