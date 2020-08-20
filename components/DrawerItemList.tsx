@@ -99,7 +99,7 @@ function OneRepMaxSettings() {
 
 function OneRepMaxItem(props) {
   const { shortName, id, rpe, reps, weightKg, weightLbs } = props
-  const { units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
+  const { currentWorkoutProps, units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
 
   const weight = units === 'kg' ? weightKg : weightLbs
   const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps })
@@ -127,8 +127,10 @@ function OneRepMaxItem(props) {
   }
 
   const removeExercise = () => {
-    const oneRepMaxProps = oneRepMaxPropsState.filter((item) => item.id !== id)
-    settingsRef.set({ oneRepMaxProps }, { merge: true })
+    if (oneRepMaxPropsState.length === 1) return
+    const oneRepMaxProps = oneRepMaxPropsState.filter((item) => item.shortName !== shortName)
+    const newCurrentWorkoutProps = currentWorkoutProps.filter((item) => item.shortName !== shortName)
+    settingsRef.set({ oneRepMaxProps, currentWorkoutProps: newCurrentWorkoutProps }, { merge: true })
   }
 
   return (
@@ -169,6 +171,7 @@ function OneRepMaxItem(props) {
       <Box
         flex="0.5"
         onDoubleClick={() => {
+          if (oneRepMaxPropsState.length === 1) return
           window.confirm('Are you sure you want to delete this exercise?') && removeExercise()
         }}
       >
