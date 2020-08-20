@@ -25,7 +25,9 @@ export function ExerciseProps({ exercise }) {
     <Stack>
       {exercise.sets.map(({ rpe, reps, id }, idx) => {
         const oneRM = oneRepMaxProps.find((item) => item.shortName === exercise.shortName)
-        const oneRMWeight = calculateOneRepMax({ weightKg: oneRM['weightKg'], weightLbs: oneRM['weightLbs'], units, rpe: oneRM.rpe, reps: oneRM.reps })
+        const { weightKg, weightLbs } = oneRM
+        const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe: oneRM.rpe, reps: oneRM.reps })
+        const worksetWeight = getWorksetWeight(rpe, reps, oneRMWeight)
 
         return (
           <Stack key={id} isInline alignItems="center" fontWeight="bold">
@@ -51,7 +53,7 @@ export function ExerciseProps({ exercise }) {
               </Select>
             </Box>
             <Box flex="0.7">
-              <Text textAlign="center">{getWorksetWeight(rpe, reps, oneRMWeight)}</Text>
+              <Text textAlign="center">{units === 'kg' ? worksetWeight : Math.round(worksetWeight)}</Text>
             </Box>
             <Box flex="0.5">
               <Button bg="gray.900" fontWeight="bold" fontSize="xl" width="full" onClick={() => removeWorkoutSet(idx)}>

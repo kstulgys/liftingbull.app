@@ -122,8 +122,10 @@ function OneRepMaxItem(props) {
     const nameExist = oneRepMaxPropsState.some((item) => item.shortName === value)
     if (nameExist) return window.alert('Name already exist')
     const oneRepMaxProps = [...oneRepMaxPropsState]
-    oneRepMaxProps.find((element) => element.id == id)['shortName'] = value
-    settingsRef.set({ oneRepMaxProps }, { merge: true })
+    const newCurrentWorkoutProps = [...currentWorkoutProps]
+    oneRepMaxProps.find((element) => element.shortName == shortName)['shortName'] = value
+    newCurrentWorkoutProps.find((element) => element.shortName == shortName)['shortName'] = value
+    settingsRef.set({ oneRepMaxProps, currentWorkoutProps: newCurrentWorkoutProps }, { merge: true })
   }
 
   const removeExercise = () => {
@@ -172,7 +174,7 @@ function OneRepMaxItem(props) {
         flex="0.5"
         onDoubleClick={() => {
           if (oneRepMaxPropsState.length === 1) return
-          window.confirm('Are you sure you want to delete this exercise?') && removeExercise()
+          window.confirm('Are you sure you want to delete this exercise? All the data related to this exercise will be deleted.') && removeExercise()
         }}
       >
         <Text textAlign="end">{oneRMWeight}</Text>

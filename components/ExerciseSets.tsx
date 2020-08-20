@@ -6,17 +6,19 @@ export function ExerciseSets({ exercise }) {
   const { oneRepMaxProps, units, plates } = useStore((store) => store)
   const currentPlates = units === 'kg' ? plates.kg : plates.lbs
   const oneRM = oneRepMaxProps.find((item) => item.shortName === exercise.shortName)
-  const oneRMWeight = calculateOneRepMax({ weightKg: oneRM['weightKg'], weightLbs: oneRM['weightLbs'], units, rpe: oneRM.rpe, reps: oneRM.reps })
+  const { weightKg, weightLbs } = oneRM
+  const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe: oneRM.rpe, reps: oneRM.reps })
+  const barbellWeight = units === 'kg' ? 20 : 44
 
   return (
     <Accordion allowToggle defaultIndex={[999]} allowMultiple>
-      <WarmupSets exercise={exercise} oneRM={oneRMWeight} currentPlates={currentPlates} />
-      <WorkSets exercise={exercise} oneRM={oneRMWeight} currentPlates={currentPlates} />
+      <WarmupSets exercise={exercise} oneRM={oneRMWeight} currentPlates={currentPlates} barbellWeight={barbellWeight} />
+      <WorkSets exercise={exercise} oneRM={oneRMWeight} currentPlates={currentPlates} barbellWeight={barbellWeight} />
     </Accordion>
   )
 }
 
-function WorkSets({ exercise, oneRM, currentPlates }) {
+function WorkSets({ exercise, oneRM, currentPlates, barbellWeight }) {
   return (
     <AccordionItem fontWeight="bold" borderColor="gray.900">
       <AccordionHeader fontWeight="bold" px="2">
@@ -39,7 +41,7 @@ function WorkSets({ exercise, oneRM, currentPlates }) {
                   <Text>{worksetWeight}</Text>
                 </Box>
                 <Box flex="1">
-                  <Text textAlign="center">{getPlatesOnBar(worksetWeight, 20, currentPlates)}</Text>
+                  <Text textAlign="center">{getPlatesOnBar(worksetWeight, barbellWeight, currentPlates)}</Text>
                 </Box>
                 <Box flex="0.15">
                   <Text textAlign="right">{reps}</Text>
@@ -53,7 +55,7 @@ function WorkSets({ exercise, oneRM, currentPlates }) {
   )
 }
 
-function WarmupSets({ exercise, oneRM, currentPlates }) {
+function WarmupSets({ exercise, oneRM, currentPlates, barbellWeight }) {
   const { warmupSetsProps } = useStore((store) => store)
   const workSet = exercise.sets[0]
   const weight = workSet && getWorksetWeight(workSet.rpe, workSet.reps, oneRM)
@@ -82,7 +84,7 @@ function WarmupSets({ exercise, oneRM, currentPlates }) {
                     </Text>
                   </Box>
                   <Box flex="1">
-                    <Text textAlign="center">{getPlatesOnBar(warmupWeight, 20, currentPlates)}</Text>
+                    <Text textAlign="center">{getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)}</Text>
                   </Box>
                   <Box flex="0.15">
                     <Text textAlign="right">{reps}</Text>
