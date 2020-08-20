@@ -31,8 +31,8 @@ export function DrawerItemList() {
     <Accordion defaultIndex={[999]} allowToggle>
       <OneRepMaxSettings />
       <WarmupSettings />
-      <UnitsSettings />
       <PlatesSettings />
+      <UnitsSettings />
       {/* <VariantsSettings /> */}
       {/* <WorkoutSettings /> */}
     </Accordion>
@@ -59,7 +59,9 @@ function OneRepMaxSettings() {
   const { oneRepMaxProps, units, settingsRef } = useStore((store) => store)
 
   const addNewExercise = () => {
+    const isDefaultNameAdded = oneRepMaxProps.some((item) => item.shortName === 'XX')
     const { weightKg, weightLbs } = getKgAndLbs(units, 200)
+    if (isDefaultNameAdded) return window.alert('Name already exist')
     const newOneRepMaxProps = [...oneRepMaxProps, { id: uuid(), shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }]
     settingsRef.set({ oneRepMaxProps: newOneRepMaxProps }, { merge: true })
   }
@@ -88,7 +90,9 @@ function OneRepMaxSettings() {
           return <OneRepMaxItem key={props.id} {...props} />
         })}
       </Stack>
-      <Button mt="4">Add Exercise</Button>
+      <Button mt="4" onClick={addNewExercise}>
+        Add Exercise
+      </Button>
     </AcordionItemWrapper>
   )
 }
@@ -98,6 +102,7 @@ function OneRepMaxItem(props) {
   const { units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
 
   const weight = units === 'kg' ? weightKg : weightLbs
+  const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps })
 
   const updateOneRepMaxProp = (prop, data) => {
     const oneRepMaxProps = [...oneRepMaxPropsState]
@@ -114,10 +119,13 @@ function OneRepMaxItem(props) {
   }
 
   const updateNameProp = (value) => {
+    const nameExist = oneRepMaxPropsState.some((item) => item.shortName === value)
+    if (nameExist) return window.alert('Name already exist')
     const oneRepMaxProps = [...oneRepMaxPropsState]
     oneRepMaxProps.find((element) => element.id == id)['shortName'] = value
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
+
   const removeExercise = () => {
     const oneRepMaxProps = oneRepMaxPropsState.filter((item) => item.id !== id)
     settingsRef.set({ oneRepMaxProps }, { merge: true })
@@ -161,10 +169,10 @@ function OneRepMaxItem(props) {
       <Box
         flex="0.5"
         onDoubleClick={() => {
-          if (window.confirm('Are you sure you want to delete this exercise?')) removeExercise()
+          window.confirm('Are you sure you want to delete this exercise?') && removeExercise()
         }}
       >
-        <Text textAlign="end">{calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps })}</Text>
+        <Text textAlign="end">{oneRMWeight}</Text>
       </Box>
     </Stack>
   )
@@ -185,43 +193,9 @@ function UnitsSettings() {
         <FormLabel htmlFor="units" textTransform="capitalize" width="10" fontWeight="bold">
           {units}
         </FormLabel>
-        <Box>{isLoading ? <Spinner size="xs" /> : <Switch isChecked={units === 'kg'} size="lg" id="units" onChange={updateUnits} />}</Box>
+        <Box>{isLoading ? <Spinner size="sm" /> : <Switch isChecked={units === 'kg'} size="lg" id="units" onChange={updateUnits} />}</Box>
       </Stack>
     </AcordionItemWrapper>
-  )
-}
-
-function WorkoutSettings() {
-  return (
-    <AccordionItem isDisabled borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
-          Workout program
-        </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel pb={4}>
-        <Text>Add your workout program</Text>
-        <Text>Coming soon...</Text>
-      </AccordionPanel>
-    </AccordionItem>
-  )
-}
-
-function VariantsSettings() {
-  return (
-    <AccordionItem isDisabled borderColor="gray.900">
-      <AccordionHeader>
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold">
-          Variants
-        </Box>
-        <AccordionIcon />
-      </AccordionHeader>
-      <AccordionPanel pb={4}>
-        <Text>Add other exercises (variants)</Text>
-        <Text>Coming soon...</Text>
-      </AccordionPanel>
-    </AccordionItem>
   )
 }
 

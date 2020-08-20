@@ -39,21 +39,12 @@ export function AppDrawer() {
           </DrawerBody>
 
           <DrawerFooter p="2" mb="10">
-            <Stack isInline spacing="2" alignItems="center" width="full">
-              <Button width="full" onClick={onClose} fontSize="md">
+            <Stack isInline spacing="5" alignItems="center" width="full">
+              <Button fontSize="md" onClick={onClose} rounded="full">
                 Close
               </Button>
-              <Button
-                fontSize="md"
-                width="full"
-                onClick={() => {
-                  window.localStorage.clear()
-                  window.location.reload()
-                }}
-              >
-                Reset
-              </Button>
-              <Button fontSize="md" width="full" onClick={signout}>
+
+              <Button fontSize="md" onClick={signout} rounded="full">
                 Sign out
               </Button>
             </Stack>
