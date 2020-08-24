@@ -19,7 +19,7 @@ import { db } from '../utils/firebase'
 //   units: null,
 // }
 
-export const [useStore, api] = create((set, get) => ({
+export const useStore = create((set, get) => ({
   currentWorkoutProps: null,
   oneRepMaxProps: null,
   plates: null,
@@ -36,4 +36,4 @@ export const [useStore, api] = create((set, get) => ({
   },
 }))
 
-const unsub1 = api.subscribe((state) => console.log('state changed', state))
+// const unsub1 = api.subscribe((state) => console.log('state changed', state))
