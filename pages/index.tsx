@@ -1,21 +1,24 @@
 import { AppDrawer } from '../components/AppDrawer'
 import { useAuth } from '../utils/useAuth'
 import { Stack } from '@chakra-ui/core'
-import { AddExercise } from '../components/AddExercise'
-import { ExerciseList } from '../components/ExerciseList'
 import Layout from '../components/Layout'
+import { CurrentWorkout } from '../components/CurrentWorkout'
+import { useStore } from '../utils/store'
 
-export default function IndexPage() {
+function IndexPage() {
   const { user } = useAuth((state) => state)
-  if (!user) return null
+  const { units } = useStore((store) => store)
+
+  if (!user || !units) return null
 
   return (
     <Layout>
       <Stack shouldWrapChildren maxW="sm" width="full" mx="auto" minH="100vh" p="4">
         <AppDrawer />
-        <ExerciseList />
-        <AddExercise />
+        <CurrentWorkout />
       </Stack>
     </Layout>
   )
 }
+
+export default IndexPage

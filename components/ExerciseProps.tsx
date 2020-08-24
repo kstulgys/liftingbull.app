@@ -3,28 +3,26 @@ import { calculateOneRepMax, getRepsList, getRpeList, getWorksetWeight } from '.
 import { useStore } from '../utils/store'
 import { Select } from '../components/lib'
 
-export function ExerciseProps({ exercise }) {
+export function ExerciseProps() {
   const { oneRepMaxProps, settingsRef, currentWorkoutProps, units } = useStore((store) => store)
 
   const updateExerciseSet = (id, prop, data) => {
-    const itemCopy = [...currentWorkoutProps]
-    const found = itemCopy.find((item) => item.id === exercise.id)
-    found.sets.find((item) => item.id === id)[prop] = data
+    const itemCopy = { ...currentWorkoutProps }
+    currentWorkoutProps.sets.find((item) => item.id === id)[prop] = data
     settingsRef.set({ currentWorkoutProps: itemCopy }, { merge: true })
   }
 
   const removeWorkoutSet = (idx) => {
-    const itemCopy = [...currentWorkoutProps]
-    const exerciseIdx = itemCopy.findIndex((item) => item.id === exercise.id)
-    if (itemCopy[exerciseIdx].sets.length === 1) return
-    itemCopy[exerciseIdx].sets.splice(idx, 1)
+    const itemCopy = { ...currentWorkoutProps }
+    if (itemCopy.sets.length === 1) return
+    itemCopy.sets.splice(idx, 1)
     settingsRef.set({ currentWorkoutProps: itemCopy }, { merge: true })
   }
 
   return (
     <Stack>
-      {exercise.sets.map(({ rpe, reps, id }, idx) => {
-        const oneRM = oneRepMaxProps.find((item) => item.shortName === exercise.shortName)
+      {currentWorkoutProps?.sets.map(({ rpe, reps, id }, idx) => {
+        const oneRM = oneRepMaxProps.find((item) => item.shortName === currentWorkoutProps.shortName)
         const { weightKg, weightLbs } = oneRM
         const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe: oneRM.rpe, reps: oneRM.reps })
         const worksetWeight = getWorksetWeight(rpe, reps, oneRMWeight)

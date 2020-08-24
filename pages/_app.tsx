@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { ThemeProvider, CSSReset, Button } from '@chakra-ui/core'
-import { AppProps, AppContext } from 'next/app'
+import { AppProps } from 'next/app'
 import { useAuth } from '../utils/useAuth'
 import { useRouter } from 'next/dist/client/router'
 import { useStore } from '../utils/store'
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
   const { user } = useAuth((store) => store)
   const { listenForAuthStateChange } = useAuth((store) => store.actions)
@@ -27,3 +27,5 @@ export default function App({ Component, pageProps }: AppProps) {
     </ThemeProvider>
   )
 }
+
+export default App

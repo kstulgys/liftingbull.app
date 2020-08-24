@@ -28,22 +28,21 @@ export function DrawerItemList() {
   if (!user) return null
 
   return (
-    <Accordion defaultIndex={[999]} allowToggle>
+    <Accordion>
       <OneRepMaxSettings />
       <WarmupSettings />
       <PlatesSettings />
       <UnitsSettings />
       {/* <VariantsSettings /> */}
-      {/* <WorkoutSettings /> */}
     </Accordion>
   )
 }
 
-function AcordionItemWrapper({ children, title }) {
+function AcordionItemWrapper({ children, title, ...rest }) {
   return (
-    <AccordionItem borderColor="gray.900">
+    <AccordionItem borderColor="gray.900" {...rest}>
       <AccordionHeader px="2">
-        <Box flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
+        <Box textTransform="uppercase" flex="1" textAlign="left" fontSize="2xl" fontWeight="bold" color="teal.300">
           {title}
         </Box>
         <AccordionIcon />
@@ -59,10 +58,10 @@ function OneRepMaxSettings() {
   const { oneRepMaxProps, units, settingsRef } = useStore((store) => store)
 
   const addNewExercise = () => {
-    const isDefaultNameAdded = oneRepMaxProps.some((item) => item.shortName === 'XX')
     const { weightKg, weightLbs } = getKgAndLbs(units, 200)
-    if (isDefaultNameAdded) return window.alert('Name already exist')
-    const newOneRepMaxProps = [...oneRepMaxProps, { id: uuid(), shortName: 'XX', rpe: 10, reps: 5, weightKg, weightLbs }]
+    const shortName = uuid().slice(0, 4).toUpperCase()
+    const newOneRepMaxProps = [...oneRepMaxProps, { id: uuid(), shortName, rpe: 10, reps: 5, weightKg, weightLbs }]
+    if (oneRepMaxProps.some((item) => item.shortName === shortName)) return
     settingsRef.set({ oneRepMaxProps: newOneRepMaxProps }, { merge: true })
   }
 
@@ -99,7 +98,7 @@ function OneRepMaxSettings() {
 
 function OneRepMaxItem(props) {
   const { shortName, id, rpe, reps, weightKg, weightLbs } = props
-  const { currentWorkoutProps, units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
+  const { currentWorkoutProps: currentWorkoutPropsState, units, oneRepMaxProps: oneRepMaxPropsState, settingsRef } = useStore((store) => store)
 
   const weight = units === 'kg' ? weightKg : weightLbs
   const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps })
@@ -113,26 +112,45 @@ function OneRepMaxItem(props) {
   const updateWeightProp = (weight) => {
     const { weightKg, weightLbs } = getKgAndLbs(units, weight)
     const oneRepMaxProps = [...oneRepMaxPropsState]
-    oneRepMaxProps.find((element) => element.id == id)['weightKg'] = weightKg
-    oneRepMaxProps.find((element) => element.id == id)['weightLbs'] = weightLbs
+    oneRepMaxProps.find((item) => item.id == id).weightKg = weightKg
+    oneRepMaxProps.find((item) => item.id == id).weightLbs = weightLbs
     settingsRef.set({ oneRepMaxProps }, { merge: true })
   }
 
   const updateNameProp = (value) => {
-    const nameExist = oneRepMaxPropsState.some((item) => item.shortName === value)
-    if (nameExist) return window.alert('Name already exist')
     const oneRepMaxProps = [...oneRepMaxPropsState]
-    const newCurrentWorkoutProps = [...currentWorkoutProps]
-    oneRepMaxProps.find((element) => element.shortName == shortName)['shortName'] = value
-    newCurrentWorkoutProps.find((element) => element.shortName == shortName)['shortName'] = value
-    settingsRef.set({ oneRepMaxProps, currentWorkoutProps: newCurrentWorkoutProps }, { merge: true })
+    const currentWorkoutProps = { ...currentWorkoutPropsState }
+
+    if (oneRepMaxProps.length === 1) {
+      oneRepMaxProps.find((item) => item.shortName === shortName)['shortName'] = value
+      currentWorkoutProps.shortName = value
+      return settingsRef.set({ oneRepMaxProps, currentWorkoutProps }, { merge: true })
+    }
+
+    const nameExist = oneRepMaxPropsState.find((item) => item.shortName === value)
+    if (nameExist && nameExist.shortName !== shortName) {
+      window.alert('Name already exist')
+      return settingsRef.set({ oneRepMaxProps }, { merge: true })
+    }
+
+    if (currentWorkoutProps.shortName === shortName) {
+      currentWorkoutProps.shortName = value
+    }
+
+    oneRepMaxProps.find((item) => item.shortName === shortName)['shortName'] = value
+    settingsRef.set({ oneRepMaxProps, currentWorkoutProps }, { merge: true })
   }
 
   const removeExercise = () => {
     if (oneRepMaxPropsState.length === 1) return
+    const currentWorkoutProps = { ...currentWorkoutPropsState }
     const oneRepMaxProps = oneRepMaxPropsState.filter((item) => item.shortName !== shortName)
-    const newCurrentWorkoutProps = currentWorkoutProps.filter((item) => item.shortName !== shortName)
-    settingsRef.set({ oneRepMaxProps, currentWorkoutProps: newCurrentWorkoutProps }, { merge: true })
+    if (currentWorkoutProps.shortName === shortName) {
+      currentWorkoutProps.shortName = oneRepMaxProps[0].shortName
+      settingsRef.set({ oneRepMaxProps, currentWorkoutProps }, { merge: true })
+    } else {
+      settingsRef.set({ oneRepMaxProps }, { merge: true })
+    }
   }
 
   return (
@@ -205,7 +223,7 @@ function UnitsSettings() {
 }
 
 function PlatesSettings() {
-  const { plates, settingsRef } = useStore((store) => store)
+  const { plates, settingsRef, units } = useStore((store) => store)
 
   const updatePlates = (units: string, plate: number) => {
     const newPlates = plates[units].includes(plate) ? plates[units].filter((pl) => pl !== plate) : [...plates[units], plate]
@@ -215,30 +233,27 @@ function PlatesSettings() {
   return (
     <AcordionItemWrapper title="Available plates">
       <Stack spacing="4">
-        <Box ml="1">
-          <Text fontWeight="black">KG</Text>
-        </Box>
-        <Stack isInline flexWrap="wrap" spacing="0">
-          {defaultPlates?.kg.map((plate) => (
-            <Box key={plate}>
-              <ButtonPlate onClick={() => updatePlates('kg', plate)} isActive={plates?.kg.includes(plate)}>
-                {plate}
-              </ButtonPlate>
-            </Box>
-          ))}
-        </Stack>
-        <Box>
-          <Text fontWeight="black">LBS</Text>
-        </Box>
-        <Stack isInline flexWrap="wrap" spacing="0">
-          {defaultPlates?.lbs.map((plate) => (
-            <Box key={plate}>
-              <ButtonPlate onClick={() => updatePlates('lbs', plate)} isActive={plates?.lbs.includes(plate)}>
-                {plate}
-              </ButtonPlate>
-            </Box>
-          ))}
-        </Stack>
+        {units === 'kg' ? (
+          <Stack isInline flexWrap="wrap" spacing="0">
+            {defaultPlates?.kg.map((plate) => (
+              <Box key={plate}>
+                <ButtonPlate onClick={() => updatePlates('kg', plate)} isActive={plates?.kg.includes(plate)}>
+                  {plate}
+                </ButtonPlate>
+              </Box>
+            ))}
+          </Stack>
+        ) : (
+          <Stack isInline flexWrap="wrap" spacing="0">
+            {defaultPlates?.lbs.map((plate) => (
+              <Box key={plate}>
+                <ButtonPlate onClick={() => updatePlates('lbs', plate)} isActive={plates?.lbs.includes(plate)}>
+                  {plate}
+                </ButtonPlate>
+              </Box>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </AcordionItemWrapper>
   )
