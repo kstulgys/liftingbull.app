@@ -15,7 +15,7 @@ import {
   Spinner,
 } from '@chakra-ui/core'
 import { useState } from 'react'
-import { calculateOneRepMax, getKgAndLbs, getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
+import { calculateOneRepMax, getKgAndLbs, getPercentFromTo, getRepsList, getRepsNumbers, getRpeList, getWeightNumbers, getWeightPercents } from '../utils'
 import { useStore } from '../utils/store'
 import { useAuth } from '../utils/useAuth'
 import { Button, Select } from './lib'
@@ -30,10 +30,10 @@ export function DrawerItemList() {
   return (
     <Accordion>
       <OneRepMaxSettings />
+      <VariantsSettings />
       <WarmupSettings />
       <PlatesSettings />
       <UnitsSettings />
-      {/* <VariantsSettings /> */}
     </Accordion>
   )
 }
@@ -51,6 +51,122 @@ function AcordionItemWrapper({ children, title, ...rest }) {
         {children}
       </AccordionPanel>
     </AccordionItem>
+  )
+}
+
+function VariantsSettings() {
+  const { variantProps: variantPropsState, oneRepMaxProps, settingsRef } = useStore((store) => store)
+
+  const names = oneRepMaxProps.map(({ id, shortName }) => ({ id, name: shortName }))
+
+  const addNewVariant = () => {
+    const shortName = uuid().slice(0, 4).toUpperCase()
+    const variantProps = [...variantPropsState, { id: uuid(), shortName, baseLift: oneRepMaxProps[0].shortName, pct: 0.9 }]
+    if (oneRepMaxProps.some((item) => item.shortName === shortName)) return
+    settingsRef.set({ variantProps }, { merge: true })
+  }
+
+  return (
+    <AcordionItemWrapper title="Variants">
+      <Stack isInline fontWeight="bold" mb="2">
+        <Box flex="0.6">
+          <Text>NAME</Text>
+        </Box>
+        <Box flex="1">
+          <Text textAlign="center">BASE</Text>
+        </Box>
+        <Box flex="1">
+          <Text textAlign="center">Percent</Text>
+        </Box>
+        <Box flex="0.6">
+          <Text textAlign="end">1RM</Text>
+        </Box>
+      </Stack>
+      <Stack spacing="4" shouldWrapChildren>
+        {variantPropsState.map((props) => {
+          return <VariantItem key={props.id} {...props} names={names} />
+        })}
+      </Stack>
+      <Stack>
+        <Box ml="auto">
+          <Button mt="4" onClick={addNewVariant}>
+            Add Variant
+          </Button>
+        </Box>
+      </Stack>
+    </AcordionItemWrapper>
+  )
+}
+
+function VariantItem(props) {
+  const { id, pct, baseLift, shortName, names } = props
+  const { variantProps: variantPropsState, settingsRef, oneRepMaxProps, units } = useStore((store) => store)
+
+  const updateVariantProp = (prop: 'baseLift' | 'pct', value: string | number) => {
+    const variantProps = [...variantPropsState]
+    variantProps.find((element) => element.id == id)[prop] = value
+    settingsRef.set({ variantProps }, { merge: true })
+  }
+
+  const removeExercise = () => {
+    if (variantPropsState.length === 1) return
+    const res = window.confirm('Are you sure you want to delete this exercise? All the data related to this exercise will be deleted.')
+    if (res) {
+      const variantProps = [...variantPropsState]
+      const filtered = variantProps.filter((element) => element.id !== id)
+      settingsRef.set({ variantProps: filtered }, { merge: true })
+    }
+  }
+
+  const base = oneRepMaxProps.find((item) => item.shortName === baseLift)
+  const { weightKg, weightLbs, rpe, reps } = base
+
+  const oneRMWeight = (calculateOneRepMax({ weightKg, weightLbs, units, rpe, reps }) * pct).toFixed(1)
+
+  return (
+    <Stack isInline alignItems="center" spacing="1" fontWeight="bold" fontSize="lg">
+      <Box flex="0.5">
+        <Editable
+          textTransform="uppercase"
+          placeholder="XXX"
+          defaultValue={shortName}
+          // onSubmit={updateNameProp}
+        >
+          <EditablePreview textTransform="uppercase" />
+          <EditableInput height="8" />
+        </Editable>
+      </Box>
+      <Box flex="0.9">
+        <Select value={baseLift} onChange={(e) => updateVariantProp('baseLift', e.target.value)}>
+          {names.map(({ id, name }) => (
+            <option key={id} value={name}>
+              {name}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      <Box flex="0.8">
+        <Select value={pct} onChange={(e) => updateVariantProp('pct', +e.target.value)}>
+          {getPercentFromTo({ from: 50, to: 200 }).map((num) => (
+            <option key={num} value={num}>
+              {Math.round(num * 100)}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      {/* <Box flex="1"> */}
+      {/* <Select value={weight} onChange={(e) => updateWeightProp(+e.target.value)}>
+        {getWeightNumbers(units).map((num) => (
+          <option key={num} value={num}>
+            {num}
+          </option>
+        ))}
+      </Select> */}
+      {/* </Box> */}
+      <Box flex="0.5" onDoubleClick={removeExercise}>
+        <Text textAlign="end">{oneRMWeight}</Text>
+      </Box>
+    </Stack>
   )
 }
 
@@ -89,9 +205,13 @@ function OneRepMaxSettings() {
           return <OneRepMaxItem key={props.id} {...props} />
         })}
       </Stack>
-      <Button mt="4" onClick={addNewExercise}>
-        Add Exercise
-      </Button>
+      <Stack>
+        <Box ml="auto">
+          <Button mt="4" onClick={addNewExercise}>
+            Add Exercise
+          </Button>
+        </Box>
+      </Stack>
     </AcordionItemWrapper>
   )
 }
@@ -154,7 +274,7 @@ function OneRepMaxItem(props) {
   }
 
   return (
-    <Stack key={id} isInline alignItems="center" spacing="1" fontWeight="bold" fontSize="lg">
+    <Stack isInline alignItems="center" spacing="1" fontWeight="bold" fontSize="lg">
       <Box flex="0.5">
         <Editable placeholder="XXX" defaultValue={shortName} onSubmit={updateNameProp}>
           <EditablePreview />

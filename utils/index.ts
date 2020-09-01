@@ -79,6 +79,15 @@ export function getRepsNumbers() {
     .map((_, idx) => idx + 1)
 }
 
+export function getPercentFromTo({ from, to }) {
+  return Array(to)
+    .fill(null)
+    .map((_, idx) => {
+      if (idx + 1 >= from) return (idx + 1) / 100
+    })
+    .filter(Boolean)
+}
+
 export function getWeightPercents() {
   const array = Array(110)
     .fill(null)
