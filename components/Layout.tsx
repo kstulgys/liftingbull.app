@@ -20,9 +20,10 @@ export default function Layout({ children }) {
         {/* <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="shortcut icon" href="/icons/favicon.ico" /> */}
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        {/* <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" /> */}
+        <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
       </Head>
-      <Stack w="full" spacing="0" bg="gray.900" fontFamily="Montserrat">
+      <Stack w="full" spacing="0" bg="gray.900" fontFamily="Ubuntu">
         {children}
       </Stack>
     </Box>

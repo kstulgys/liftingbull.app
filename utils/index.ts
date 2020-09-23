@@ -1,22 +1,3 @@
-export function writeStorage(key: string, data: any): any[] {
-  console.log({ key })
-  console.log({ data })
-
-  window.localStorage.setItem(key, JSON.stringify(data))
-  return data
-}
-
-export function readStorage(key: string): any[] | null {
-  const item = window.localStorage.getItem(key) || 'null'
-  return JSON.parse(item)
-}
-
-export function readOrWriteStorage(key: string, defaultValue: any): any[] {
-  const item = readStorage(key)
-  if (item) return item
-  return writeStorage(key, defaultValue)
-}
-
 export const lookupTable: { [key: number]: any[] } = {
   10: [null, 1, 0.955, 0.922, 0.892, 0.863, 0.837, 0.811, 0.786, 0.762, 0.739, 0.707, 0.68],
   9.5: [null, 0.978, 0.939, 0.907, 0.878, 0.85, 0.824, 0.799, 0.774, 0.751, 0.723, 0.694, 0.667],

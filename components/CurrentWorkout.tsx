@@ -5,19 +5,26 @@ import { ExerciseSets } from '../components/ExerciseSets'
 import { v4 as uuid } from 'uuid'
 import { Select, Button } from '../components/lib'
 import { Box, Stack, Icon } from '@chakra-ui/core'
+import { useDocument } from '@nandorojo/swr-firestore'
+import { useAuth } from '../utils/useAuth'
 
 export function CurrentWorkout() {
   return (
     <Stack fontSize="xl" color="cyan.300" bg="gray.900" shouldWrapChildren>
       <Header />
       <ExerciseProps />
-      <ExerciseSets />
+      {/* <ExerciseSets /> */}
     </Stack>
   )
 }
 
 function Header() {
-  const { currentWorkoutProps, oneRepMaxProps, settingsRef } = useStore((store) => store)
+  const { user } = useAuth((store) => store)
+  const { data, update, error } = useDocument(`settings/${user?.uid}`, {
+    listen: true,
+  })
+
+  const { currentWorkoutProps, oneRepMaxProps, settingsRef } = data
 
   const addExerciseSet = () => {
     const itemCopy = { ...currentWorkoutProps }
@@ -55,7 +62,7 @@ function Header() {
           ))}
         </Select>
       </Box>
-      <Box flex="0.5"></Box>
+      <Box flex="0.5" />
     </Stack>
   )
 }

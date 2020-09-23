@@ -25,7 +25,7 @@ export const useAuth = create((set, get) => ({
       set({ loading: true })
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
-          const { displayName, email, uid } = user
+          const { uid } = user
           const userRef = db.collection('users').doc(uid)
           const settingsRef = db.collection('settings').doc(uid)
 
@@ -35,7 +35,7 @@ export const useAuth = create((set, get) => ({
                 set({ user: { ...doc.data() }, userRef, loading: false })
                 onSuccess()
               } else {
-                userRef.set({ uid, displayName, email })
+                userRef.set({ ...user })
                 settingsRef.set({
                   units: defaultUnits,
                   currentWorkoutProps: defaultCurrentWorkoutProps,
@@ -43,7 +43,7 @@ export const useAuth = create((set, get) => ({
                   warmupSetsProps: defaultWarmupSetsProps,
                   oneRepMaxProps: defaultOneRepMaxProps,
                 })
-                set({ user: { uid, displayName, email }, loading: false, userRef })
+                set({ user, loading: false, userRef })
               }
             })
           } catch (error) {

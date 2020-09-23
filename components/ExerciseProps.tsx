@@ -2,9 +2,17 @@ import { Button, Stack, Box, Text } from '@chakra-ui/core'
 import { calculateOneRepMax, getRepsList, getRpeList, getWorksetWeight } from '../utils'
 import { useStore } from '../utils/store'
 import { Select } from '../components/lib'
+import { useDocument } from '@nandorojo/swr-firestore'
+import { useAuth } from '../utils/useAuth'
 
 export function ExerciseProps() {
-  const { oneRepMaxProps, settingsRef, currentWorkoutProps, units } = useStore((store) => store)
+  const { user } = useAuth((store) => store)
+  const { data, update, error } = useDocument(`settings/${user?.uid}`, {
+    listen: true,
+  })
+
+  const { oneRepMaxProps, settingsRef, currentWorkoutProps, units } = data
+  // const { oneRepMaxProps, settingsRef, currentWorkoutProps, units } = useStore((store) => store)
 
   const updateExerciseSet = (id, prop, data) => {
     const itemCopy = { ...currentWorkoutProps }
