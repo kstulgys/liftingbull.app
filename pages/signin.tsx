@@ -1,7 +1,8 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { Box, Button, Stack, Select, Text } from '@chakra-ui/core'
+import { Box, Button, Stack, Select, Text, Spinner } from '@chakra-ui/core'
 import { useAuth } from '../utils/useAuth'
+import Layout from '../components/Layout'
 
 function SigninPage() {
   const router = useRouter()
@@ -12,13 +13,24 @@ function SigninPage() {
     listenForAuthStateChange({ onSuccess: () => router.push('/app'), onFailure: () => router.push('/signin') })
   }, [])
 
-  if (loading) return <Text>Loading...</Text>
+  if (loading) {
+    return (
+      <Layout>
+        <Stack pt="20">
+          <Spinner size="xl" mx="auto" color="white" />
+        </Stack>
+      </Layout>
+    )
+  }
+
   if (user?.uid) return null
 
   return (
-    <Stack>
-      <Button onClick={signInWithGoogle}>Sign in with Google</Button>
-    </Stack>
+    <Layout>
+      <Stack>
+        <Button onClick={signInWithGoogle}>Sign in with Google</Button>
+      </Stack>
+    </Layout>
   )
 }
 

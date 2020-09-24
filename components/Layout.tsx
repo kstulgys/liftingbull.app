@@ -23,7 +23,7 @@ export default function Layout({ children }) {
         {/* <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" /> */}
         <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
       </Head>
-      <Stack w="full" spacing="0" bg="gray.900" fontFamily="Ubuntu">
+      <Stack width="full" minH="100vh" height="full" spacing="0" bg="gray.900" fontFamily="Ubuntu">
         {children}
       </Stack>
     </Box>
