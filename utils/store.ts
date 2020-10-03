@@ -10,21 +10,17 @@ import { db } from '../utils/firebase'
 //   units: null
 // }
 
-// const initialState: State = {
-//   oneRepMax: [],
-//   currentWorkoutProps: null,
-//   oneRepMaxProps: null,
-//   warmupSetsProps: null,
-//   plates: null,
-//   units: null,
-// }
+interface State {
+  [key: string]: any
+}
 
-export const useStore = create((set, get) => ({
+export const useStore = create<State>((set, get) => ({
   // currentWorkoutProps: null,
   // oneRepMaxProps: null,
   // plates: null,
   // units: null,
   // warmupSetsProps: null,
+  // ...initialState,
   isLoading: true,
 
   actions: {
