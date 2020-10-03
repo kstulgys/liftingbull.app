@@ -15,29 +15,27 @@ const defaultUnits = 'kg'
 export const useAuth = create((set, get) => ({
   isLoading: true,
   user: null,
-  userRef: null,
   actions: {
     listenForAuthStateChange: ({ onSuccess, onFailure }) => {
       set({ isLoading: true })
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
-          const userRef = db.collection('users').doc(user.uid)
           const settingsRef = db.collection('settings').doc(user.uid)
 
           try {
-            userRef.get().then((doc) => {
+            settingsRef.get().then((doc) => {
               if (doc.exists) {
-                set({ user: { ...doc.data() }, userRef, isLoading: false })
-                onSuccess()
+                set({ user: { ...doc.data() }, isLoading: false })
+                return onSuccess()
               } else {
-                userRef.set({ ...user })
                 settingsRef.set({
                   units: defaultUnits,
                   currentWorkoutProps: defaultCurrentWorkoutProps,
                   plates: defaultPlates,
                   oneRepMaxProps: defaultOneRepMaxProps,
                 })
-                set({ user, isLoading: false, userRef })
+                set({ user: { ...doc.data() }, isLoading: false })
+                return onSuccess()
               }
             })
           } catch (error) {
