@@ -234,7 +234,7 @@ function UnitsBody() {
         kg
       </Checkbox>
       <Checkbox isChecked={units === 'lbs'} size="lg" onChange={updateUnits}>
-        Lbs
+        lbs
       </Checkbox>
     </Stack>
   )
@@ -334,7 +334,7 @@ function OneRmRow(props) {
         <Select value={weight} options={weightsList} onChange={(e) => updateWeightProp(+e.target.value)} />
       </Stack>
       <Stack alignItems="center">
-        <Text my="auto" textAlign="center">
+        <Text my="auto" textAlign="center" fontSize="lg">
           {oneRMWeight}
         </Text>
       </Stack>
@@ -362,13 +362,15 @@ interface SelectProps {
   options: { name: string | number; value: string | number }[]
   value?: string | number
   onChange?: (e: any) => void
+  fontSize?: string
 }
 
 function Select(props: SelectProps) {
-  const { options, value, onChange } = props
+  const { options, value, onChange, fontSize = 'lg' } = props
   return (
     <BaseSelect
-      color="gray.900"
+      fontSize={fontSize}
+      bg="white"
       onChange={onChange}
       width="full"
       value={value}
