@@ -18,26 +18,27 @@ export const useAuth = create((set, get) => ({
   actions: {
     listenForAuthStateChange: ({ onSuccess, onFailure }) => {
       set({ isLoading: true })
-      firebase.auth().onAuthStateChanged(async (user) => {
+      const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
           const settingsRef = db.collection('settings').doc(user.uid)
+          const userRef = db.collection('user').doc(user.uid)
 
           try {
-            settingsRef.get().then((doc) => {
-              if (doc.exists) {
-                set({ user: { ...doc.data() }, isLoading: false })
-                return onSuccess()
-              } else {
-                settingsRef.set({
-                  units: defaultUnits,
-                  currentWorkoutProps: defaultCurrentWorkoutProps,
-                  plates: defaultPlates,
-                  oneRepMaxProps: defaultOneRepMaxProps,
-                })
-                set({ user: { ...doc.data() }, isLoading: false })
-                return onSuccess()
-              }
-            })
+            const doc = await userRef.get()
+            if (doc.exists) {
+              set({ user: { ...doc.data() }, isLoading: false })
+              onSuccess()
+            } else {
+              await userRef.set({ uid: user.uid, email: user.email, displayName: user.displayName })
+              await settingsRef.set({
+                units: defaultUnits,
+                currentWorkoutProps: defaultCurrentWorkoutProps,
+                plates: defaultPlates,
+                oneRepMaxProps: defaultOneRepMaxProps,
+              })
+              set({ user: { ...doc.data() }, isLoading: false })
+              onSuccess()
+            }
           } catch (error) {
             console.log('Error getting document:', { error })
             set({ user: null, isLoading: false })
