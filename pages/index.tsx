@@ -50,6 +50,7 @@ function IndexPage() {
                 <Text>RPE calculation for selected lift</Text>
               </Box>
               <Link ml="4" isExternal href="https://www.barbellmedicine.com/blog/autoregulation-and-rpe-part-i/">
+                {/* @ts-ignore */}
                 <InfoIcon />
               </Link>
             </ListItem>
@@ -59,6 +60,7 @@ function IndexPage() {
                 <Text>Dynamic warmup sets</Text>
               </Box>
               <Link ml="4" isExternal href="https://rippedbody.com/warm-up/">
+                {/* @ts-ignore */}
                 <InfoIcon />
               </Link>
             </ListItem>
