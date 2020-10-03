@@ -83,48 +83,62 @@ export function getWeightPercents() {
   return [0, ...array]
 }
 
-export function getWeightNumbers(units) {
+export function getWeightNumbers(units: 'kg' | 'lbs', currentValue) {
+  const res = []
+  const round = (num) => +num.toFixed(1)
+  const lowPoint = round(currentValue - 20)
+  const maxPoint = round(currentValue + 20)
+
   if (units === 'lbs') {
-    const array = Array(1100).fill(null)
-    const res = []
-    array.forEach((el, idx) => {
-      if (idx >= 45) {
-        res.push(idx)
-      }
-    })
-    return res
+    for (let i = lowPoint; i <= maxPoint; i++) {
+      res.push({ name: i, value: i })
+    }
   }
 
   if (units === 'kg') {
-    const round = (num) => +num.toFixed(1)
-    const array = Array(600).fill(null)
-    const res = []
-    array.forEach((el, idx) => {
-      if (idx >= 20) {
-        res.push(
-          idx,
-          round(idx + 0.1),
-          round(idx + 0.2),
-          round(idx + 0.3),
-          round(idx + 0.4),
-          round(idx + 0.5),
-          round(idx + 0.6),
-          round(idx + 0.7),
-          round(idx + 0.8),
-          round(idx + 0.9)
-        )
-      }
-    })
-    return res
+    for (let idx = lowPoint; idx <= maxPoint; idx++) {
+      res.push({ name: idx, value: idx })
+      res.push({ name: round(idx + 0.1), value: round(idx + 0.1) })
+      res.push({ name: round(idx + 0.2), value: round(idx + 0.2) })
+      res.push({ name: round(idx + 0.3), value: round(idx + 0.3) })
+      res.push({ name: round(idx + 0.4), value: round(idx + 0.4) })
+      res.push({ name: round(idx + 0.5), value: round(idx + 0.5) })
+      res.push({ name: round(idx + 0.6), value: round(idx + 0.6) })
+      res.push({ name: round(idx + 0.7), value: round(idx + 0.7) })
+      res.push({ name: round(idx + 0.8), value: round(idx + 0.8) })
+      res.push({ name: round(idx + 0.9), value: round(idx + 0.9) })
+    }
   }
+
+  return res
 }
 
 export function getRpeList() {
-  return [6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+  return [
+    { name: 6.5, value: 6.5 },
+    { name: 7, value: 7 },
+    { name: 7.5, value: 7.5 },
+    { name: 8, value: 8 },
+    { name: 8.5, value: 8.5 },
+    { name: 9, value: 9 },
+    { name: 9.5, value: 9.5 },
+    { name: 10, value: 10 },
+  ]
 }
 
 export function getRepsList() {
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  return [
+    { name: 1, value: 1 },
+    { name: 2, value: 2 },
+    { name: 3, value: 3 },
+    { name: 4, value: 4 },
+    { name: 5, value: 5 },
+    { name: 6, value: 6 },
+    { name: 7, value: 7 },
+    { name: 8, value: 8 },
+    { name: 9, value: 9 },
+    { name: 10, value: 10 },
+  ]
 }
 
 export function convertToLbs(kg) {

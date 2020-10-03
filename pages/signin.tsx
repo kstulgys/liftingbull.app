@@ -1,19 +1,20 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { Box, Button, Stack, Select, Text, Spinner } from '@chakra-ui/core'
+import { Button, Stack, Spinner, Box, Text } from '@chakra-ui/core'
 import { useAuth } from '../utils/useAuth'
 import Layout from '../components/Layout'
+import Link from 'next/link'
 
 function SigninPage() {
   const router = useRouter()
-  const { user, loading } = useAuth((store) => store)
-  const { signInWithGoogle, listenForAuthStateChange } = useAuth((store) => store.actions)
+  const { user, isLoading } = useAuth((store) => store)
+  const { listenForAuthStateChange, signInWithGoogle } = useAuth((store) => store.actions)
 
   React.useEffect(() => {
     listenForAuthStateChange({ onSuccess: () => router.push('/app'), onFailure: () => router.push('/signin') })
   }, [])
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <Stack pt="20">
@@ -27,8 +28,17 @@ function SigninPage() {
 
   return (
     <Layout>
-      <Stack>
-        <Button onClick={signInWithGoogle}>Sign in with Google</Button>
+      <Stack p="4" maxW="sm" mx="auto" width="full">
+        <Link href="/">
+          <Text color="teal.300" fontSize="xl" textDecoration="underline" fontWeight="bold">
+            Rpetify
+          </Text>
+        </Link>
+        <Box pt="40">
+          <Button width="full" size="lg" onClick={signInWithGoogle}>
+            Sign in with Google
+          </Button>
+        </Box>
       </Stack>
     </Layout>
   )

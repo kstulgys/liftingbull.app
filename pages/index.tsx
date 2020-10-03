@@ -1,4 +1,5 @@
-import { Stack, Text, Box, Button, OrderedList, ListItem, List, ListIcon } from '@chakra-ui/core'
+import { Stack, Text, Box, Button, IconButton, ListItem, List, ListIcon, Link } from '@chakra-ui/core'
+import { InfoIcon } from '@chakra-ui/icons'
 import Layout from '../components/Layout'
 import { FiCheckCircle } from 'react-icons/fi'
 import { useRouter } from 'next/router'
@@ -15,7 +16,7 @@ function IndexPage() {
           </Text>
           <Box maxW="lg" width="full" pt="4">
             <Text fontFamily="inherit" fontSize="xl" color="teal.400">
-              A Gym App that does all the calculations based on RPE (rate of perceived exertion) and more.
+              A gym App that does all the calculations based on RPE (rate of perceived exertion) and much more.
             </Text>
           </Box>
         </Box>
@@ -48,12 +49,18 @@ function IndexPage() {
               <Box>
                 <Text>RPE calculation for selected lift</Text>
               </Box>
+              <Link ml="4" isExternal href="https://www.barbellmedicine.com/blog/autoregulation-and-rpe-part-i/">
+                <InfoIcon />
+              </Link>
             </ListItem>
             <ListItem display="flex" alignItems="center">
               <ListIcon as={FiCheckCircle} color="teal.400" fontSize="2xl" />
               <Box>
-                <Text>Dynamic and custom warmup sets</Text>
+                <Text>Dynamic warmup sets</Text>
               </Box>
+              <Link ml="4" isExternal href="https://rippedbody.com/warm-up/">
+                <InfoIcon />
+              </Link>
             </ListItem>
             <ListItem display="flex" alignItems="center">
               <ListIcon as={FiCheckCircle} color="teal.400" fontSize="2xl" />
@@ -70,7 +77,7 @@ function IndexPage() {
             <ListItem display="flex" alignItems="center">
               <ListIcon as={FiCheckCircle} color="teal.400" fontSize="2xl" />
               <Box>
-                <Text>"Available plates" selection</Text>
+                <Text>{`"Available plates" selection`}</Text>
               </Box>
             </ListItem>
             <ListItem display="flex" alignItems="center">

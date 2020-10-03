@@ -20,17 +20,18 @@ import { db } from '../utils/firebase'
 // }
 
 export const useStore = create((set, get) => ({
-  currentWorkoutProps: null,
-  oneRepMaxProps: null,
-  plates: null,
-  units: null,
-  warmupSetsProps: null,
+  // currentWorkoutProps: null,
+  // oneRepMaxProps: null,
+  // plates: null,
+  // units: null,
+  // warmupSetsProps: null,
+  isLoading: true,
 
   actions: {
-    getUserSettings: (uid) => {
+    getUserSettings: (uid: string) => {
       const settingsRef = db.collection('settings').doc(uid)
-      settingsRef.onSnapshot((doc) => {
-        set({ ...doc.data(), settingsRef })
+      const unsubscribe = settingsRef.onSnapshot((doc) => {
+        set({ ...doc.data(), settingsRef, isLoading: false })
       })
     },
   },

@@ -4,6 +4,9 @@
 .env
 .env.build
 .env.local
+.env.development
+.env.production
+
 # Dependency directories
 node_modules/
 # Logs
