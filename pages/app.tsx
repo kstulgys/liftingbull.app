@@ -351,7 +351,7 @@ function SectionDropdown({ title, children }) {
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel p="0" py="2" fontSize="md">
+      <AccordionPanel p="0" my="2" fontSize="md">
         {children}
       </AccordionPanel>
     </AccordionItem>
@@ -368,6 +368,7 @@ function Select(props: SelectProps) {
   const { options, value, onChange } = props
   return (
     <BaseSelect
+      color="gray.900"
       onChange={onChange}
       width="full"
       value={value}
