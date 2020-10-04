@@ -5,7 +5,8 @@ export default function Layout({ children }) {
   return (
     <Box>
       <Head>
-        <title>LiftingBull | App</title>
+        <title>Rpetify | RPE based weight calculator App</title>
+        <meta name="description" content="RPE based weight calculator App for weightlifters, powerlifters, bodybuilders" />
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover" />
         <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
         <script
