@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { Button, Stack, Spinner, Box, Text } from '@chakra-ui/core'
+import { Button, Stack, Spinner, Box, Text, FormControl, FormLabel, Input, FormHelperText, HStack } from '@chakra-ui/core'
 import { useAuth } from '../utils/useAuth'
 import Layout from '../components/Layout'
 import Link from 'next/link'
@@ -29,12 +29,18 @@ function SigninPage() {
   return (
     <Layout>
       <Stack p="4" maxW="sm" mx="auto" width="full">
-        <Link href="/">
-          <Text color="teal.300" fontSize="xl" textDecoration="underline" fontWeight="bold">
+        <Box>
+          <Button onClick={() => router.push('/')} variant="link" color="teal.300" fontSize="xl">
             Rpetify
+          </Button>
+        </Box>
+        <SigninWithEmail />
+        <Box py="4">
+          <Text textAlign="center" fontSize="xl" color="white">
+            Or
           </Text>
-        </Link>
-        <Box pt="40">
+        </Box>
+        <Box>
           <Button width="full" size="lg" onClick={signInWithGoogle}>
             Sign in with Google
           </Button>
@@ -45,3 +51,80 @@ function SigninPage() {
 }
 
 export default SigninPage
+
+function SigninWithEmail() {
+  const { isFormLoading, error } = useAuth((store) => store)
+  const { signin, signup, sendPasswordResetEmail } = useAuth((store) => store.actions)
+
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [type, setType] = React.useState<'signin' | 'signup' | 'restore'>('signin')
+
+  const toggleFormType = () => setType(type === 'signin' ? 'signup' : 'signin')
+
+  const handleSubmit = () => {
+    if (type === 'restore') return sendPasswordResetEmail(email)
+    if (type === 'signin') return signin(email, password)
+    if (type === 'signup') return signup(email, password)
+  }
+
+  const getSubmitButtonText = () => {
+    if (type === 'restore') return 'Restore'
+    if (type === 'signin') return 'Signin'
+    if (type === 'signup') return 'Signup'
+  }
+
+  return (
+    <form
+      style={{ marginTop: 70 }}
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit()
+      }}
+    >
+      {type === 'restore' ? (
+        <FormControl id="email">
+          <FormLabel color="white">Email address</FormLabel>
+          <Input value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
+          <FormHelperText color="red.500" fontSize="lg">
+            {error && error}
+          </FormHelperText>
+        </FormControl>
+      ) : (
+        <>
+          <FormControl id="email">
+            <FormLabel color="white">Email address</FormLabel>
+            <Input value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
+          </FormControl>
+          <FormControl id="email" mt="4">
+            <FormLabel color="white">Password</FormLabel>
+            <Input value={password} bg="white" size="lg" type="password" onChange={(e) => setPassword(e.target.value)} />
+            <FormHelperText color="red.500" fontSize="lg">
+              {error && error}
+            </FormHelperText>
+          </FormControl>
+        </>
+      )}
+
+      <HStack pt="3" alignItems="flex-start" justifyContent="space-between">
+        <Box>
+          <Button bg={type === 'signin' ? 'white' : 'teal.300'} size="lg" type="submit" isLoading={isFormLoading}>
+            {getSubmitButtonText()}
+          </Button>
+        </Box>
+        <Box>
+          <Box>
+            <Button textAlign="end" width="full" variant="link" color="teal.300" onClick={toggleFormType}>
+              {type === 'signin' ? 'Create account' : 'Signin'}
+            </Button>
+          </Box>
+          <Box>
+            <Button variant="link" color="teal.300" onClick={() => setType('restore')}>
+              Forgot password?
+            </Button>
+          </Box>
+        </Box>
+      </HStack>
+    </form>
+  )
+}

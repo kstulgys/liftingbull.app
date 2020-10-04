@@ -19,6 +19,8 @@ interface State {
 export const useAuth = create<State>((set, get) => ({
   isLoading: true,
   user: null,
+  error: '',
+  isFormLoading: false,
   actions: {
     listenForAuthStateChange: ({ onSuccess, onFailure }) => {
       set({ isLoading: true })
@@ -77,26 +79,27 @@ export const useAuth = create<State>((set, get) => ({
           // ...
         })
     },
-    signin: (email, password) => {
-      return firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then((response) => {
-          set({ user: response.user })
-          return response.user
-        })
+    signin: async (email: string, password: string) => {
+      set({ isFormLoading: true, error: '' })
+      try {
+        const response = await firebase.auth().signInWithEmailAndPassword(email, password)
+        set({ user: response.user, isFormLoading: false })
+      } catch (error) {
+        console.log({ error })
+        set({ error: error.message, isFormLoading: false })
+      }
     },
-    signup: (email, password) => {
-      return firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then((response) => {
-          set({ user: response.user })
-          return response.user
-        })
+    signup: async (email, password) => {
+      set({ isFormLoading: true, error: '' })
+      try {
+        const response = await firebase.auth().createUserWithEmailAndPassword(email, password)
+        set({ user: response.user, isFormLoading: false })
+      } catch (error) {
+        set({ error: error.message, isFormLoading: false })
+      }
     },
     signout: () => {
-      return firebase
+      firebase
         .auth()
         .signOut()
         .then(() => {
@@ -104,15 +107,14 @@ export const useAuth = create<State>((set, get) => ({
         })
     },
     sendPasswordResetEmail: (email) => {
-      return firebase
+      set({ isFormLoading: true, error: '' })
+      firebase
         .auth()
         .sendPasswordResetEmail(email)
-        .then(() => {
-          return true
-        })
+        .then(() => set({ isFormLoading: false, error: 'Please check your inbox.' }))
     },
     confirmPasswordReset: (code, password) => {
-      return firebase
+      firebase
         .auth()
         .confirmPasswordReset(code, password)
         .then(() => {
