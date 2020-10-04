@@ -85,14 +85,14 @@ function SigninWithEmail() {
       {type === 'restore' ? (
         <FormControl id="email">
           <FormLabel color="white">Email address</FormLabel>
-          <Input value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
+          <Input placeholder="yourEmail@example.com" value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
           <FormHelperText color="red.500">{error && error}</FormHelperText>
         </FormControl>
       ) : (
         <>
           <FormControl id="email">
             <FormLabel color="white">Email address</FormLabel>
-            <Input value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
+            <Input placeholder="yourEmail@example.com" value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
           </FormControl>
           <FormControl id="email" mt="4">
             <FormLabel color="white">Password</FormLabel>
