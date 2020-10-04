@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { Button, Stack, Spinner, Box, Text, FormControl, FormLabel, Input, FormHelperText, HStack } from '@chakra-ui/core'
+import { Button, Stack, Spinner, Box, Text, FormControl, FormLabel, Input, FormHelperText, HStack, VStack } from '@chakra-ui/core'
 import { useAuth } from '../utils/useAuth'
 import Layout from '../components/Layout'
 import Link from 'next/link'
@@ -86,9 +86,7 @@ function SigninWithEmail() {
         <FormControl id="email">
           <FormLabel color="white">Email address</FormLabel>
           <Input value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
-          <FormHelperText color="red.500" fontSize="lg">
-            {error && error}
-          </FormHelperText>
+          <FormHelperText color="red.500">{error && error}</FormHelperText>
         </FormControl>
       ) : (
         <>
@@ -99,9 +97,7 @@ function SigninWithEmail() {
           <FormControl id="email" mt="4">
             <FormLabel color="white">Password</FormLabel>
             <Input value={password} bg="white" size="lg" type="password" onChange={(e) => setPassword(e.target.value)} />
-            <FormHelperText color="red.500" fontSize="lg">
-              {error && error}
-            </FormHelperText>
+            <FormHelperText color="red.500">{error && error}</FormHelperText>
           </FormControl>
         </>
       )}
@@ -112,9 +108,9 @@ function SigninWithEmail() {
             {getSubmitButtonText()}
           </Button>
         </Box>
-        <Box>
-          <Box>
-            <Button textAlign="end" width="full" variant="link" color="teal.300" onClick={toggleFormType}>
+        <VStack spacing="0">
+          <Box width="full">
+            <Button mt="-9px" textAlign="end" width="full" variant="link" color="teal.300" onClick={toggleFormType}>
               {type === 'signin' ? 'Create account' : 'Signin'}
             </Button>
           </Box>
@@ -123,7 +119,7 @@ function SigninWithEmail() {
               Forgot password?
             </Button>
           </Box>
-        </Box>
+        </VStack>
       </HStack>
     </form>
   )
