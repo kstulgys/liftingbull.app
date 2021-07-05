@@ -94,7 +94,7 @@ function SigninWithEmail() {
             <FormLabel color="white">Email address</FormLabel>
             <Input placeholder="yourEmail@example.com" value={email} bg="white" size="lg" type="email" onChange={(e) => setEmail(e.target.value)} />
           </FormControl>
-          <FormControl id="email" mt="4">
+          <FormControl id="password" mt="4">
             <FormLabel color="white">Password</FormLabel>
             <Input value={password} bg="white" size="lg" type="password" onChange={(e) => setPassword(e.target.value)} />
             <FormHelperText color="red.500">{error && error}</FormHelperText>
