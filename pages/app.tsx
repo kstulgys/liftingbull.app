@@ -103,10 +103,11 @@ function WorksetPlates() {
   const { weightKg, weightLbs } = oneRM
   const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe: oneRM.rpe, reps: oneRM.reps })
   const { rpe, reps } = currentWorkoutProps
-  const worksetWeight = getWorksetWeight(rpe, reps, oneRMWeight)
   const barbellWeight = units === 'kg' ? 20 : 44
+  const worksetWeight = getWorksetWeight(rpe, reps, oneRMWeight)
   const currentPlates = units === 'kg' ? plates.kg : plates.lbs
-  const platesOnBar = getPlatesOnBar(worksetWeight, barbellWeight, currentPlates)
+  const weightForPlates = worksetWeight - barbellWeight
+  const platesOnBar = getPlatesOnBar(weightForPlates, barbellWeight, currentPlates)
   const worksetWeightFormat = units === 'kg' ? worksetWeight : Math.round(worksetWeight)
 
   return (
@@ -184,7 +185,7 @@ function WarmupSetsBody() {
     return (
       <Stack fontSize="lg" color="white">
         {warmupSets.map(({ no, pct, reps }) => {
-          const warmupWeight = Math.round(worksetWeight * pct)
+          const warmupWeight = Math.round((worksetWeight - barbellWeight) * pct)
           const platesOnBar = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
           return (
             <Stack isInline key={no}>
@@ -207,7 +208,7 @@ function WarmupSetsBody() {
   return (
     <Stack fontSize="lg" color="white">
       {warmupSets.map(({ no, pct, reps }) => {
-        const warmupWeight = Math.round(worksetWeight * pct)
+        const warmupWeight = Math.round((worksetWeight - barbellWeight) * pct)
         const platesOnBar = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
         return (
           <Stack isInline key={no}>

@@ -38,16 +38,18 @@ export function getWorksetWeight(rpe: number, reps: number, oneRM: number): numb
 }
 
 export function getPlatesOnBar(weight: number, barbellWeight: number, plates: number[]): string {
-  let oneSideWeight = +((weight - barbellWeight) / 2).toFixed(1)
-
+  let oneSideWeight = +(weight / 2).toFixed(2)
   const result: string[] = plates.reduce((acc: string[], plate: number) => {
     const platesQuantity = Math.floor(oneSideWeight / plate)
-    if (platesQuantity >= 1) {
-      oneSideWeight -= +(platesQuantity * plate)
-      return [...acc, `${plate}${platesQuantity > 1 ? 'x' + platesQuantity : ''}`]
+    if (platesQuantity) {
+      oneSideWeight -= +(platesQuantity * plate).toFixed(2)
+      const item = `${plate}${platesQuantity > 1 ? 'x' + platesQuantity : ''}`
+      return [...acc, item]
     }
+
     return acc
   }, [])
+
   return result.reduce((acc, next, idx) => {
     if (idx === 0) return acc + next
     return acc + '/' + next
