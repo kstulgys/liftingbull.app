@@ -50,6 +50,7 @@ function SelectLiftName() {
   const { currentWorkoutProps, oneRepMaxProps, settingsRef } = useStore((store) => store)
 
   const selectExercise = (newName: string) => {
+    if (!newName) return
     const itemCopy = { ...currentWorkoutProps }
     itemCopy.shortName = newName
     settingsRef.update({ currentWorkoutProps: itemCopy })
@@ -65,6 +66,7 @@ function SelectLiftParams() {
   const { rpe, reps } = currentWorkoutProps
 
   const updateExerciseSet = (prop: string, data: number) => {
+    if (!prop || !data) return
     const itemCopy = { ...currentWorkoutProps }
     itemCopy[prop] = data
     settingsRef.update({ currentWorkoutProps: itemCopy })
@@ -247,6 +249,7 @@ function AvailablePlatesBody() {
   const defaultPlates = { kg: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25], lbs: [45, 35, 25, 10, 5, 2.5] }
 
   const updatePlates = (plate: number) => {
+    if (!plate) return
     const newPlates = plates[units].includes(plate) ? plates[units].filter((pl) => pl !== plate) : [...plates[units], plate]
     settingsRef.update({ plates: { ...plates, [units]: newPlates.sort((a, b) => b - a) } })
   }
@@ -305,12 +308,14 @@ function OneRmRow(props) {
   const weightsList = getWeightNumbers(units, weight)
 
   const updateOneRepMaxProp = (prop: string, data: string) => {
+    if (!prop || !data) return
     const updatedOneRepMaxProps = [...oneRepMaxProps]
     updatedOneRepMaxProps.find((element) => element.id == id)[prop] = +data
     settingsRef.update({ oneRepMaxProps: updatedOneRepMaxProps })
   }
 
   const updateWeightProp = (weight: number) => {
+    if (!weight) return
     const { weightKg, weightLbs } = getKgAndLbs(units, weight)
     const updatedOneRepMaxProps = [...oneRepMaxProps]
     updatedOneRepMaxProps.find((item) => item.id == id).weightKg = weightKg
