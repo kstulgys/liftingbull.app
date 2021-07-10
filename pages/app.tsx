@@ -14,6 +14,14 @@ import {
   AccordionPanel,
   AccordionIcon,
   useDisclosure,
+  Link,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from '@chakra-ui/core'
 import Layout from '../components/Layout'
 import { useStore } from '../utils/store'
@@ -39,13 +47,54 @@ function AppPage() {
         <SelectLiftParams />
         <WorksetPlates />
         <Settings />
+        <NeedHelpModal />
       </Stack>
       <SignoutButton />
+      <Footer />
     </Layout>
   )
 }
 
 export default AppPage
+
+function NeedHelpModal() {
+  const { isOpen, onOpen, onClose, onToggle } = useDisclosure()
+  return (
+    <Stack>
+      <Box>
+        <Button fontSize="xl" fontWeight="normal" variant="unstyled" onClick={onToggle} color="teal.400">
+          Need help?
+        </Button>
+      </Box>
+
+      {isOpen && (
+        <Stack>
+          <Text color="white" fontSize="md">
+            If you have any questons, feel to email us at{' '}
+            <Link color="teal.400" isExternal href="mailto:team@thepowerbelt.com?subject=Hi there 👋">
+              team@thepowerbelt.com
+            </Link>{' '}
+            we will be happy to help ❤️
+          </Text>
+        </Stack>
+      )}
+    </Stack>
+  )
+}
+
+function Footer() {
+  return (
+    <Stack isInline py={2} justifyContent="center">
+      <Text color="white">
+        Made with ❤️ by{' '}
+        <Link color="teal.400" isExternal href="mailto:team@thepowerbelt.com?subject=Hi there 👋">
+          thepowerbelt
+        </Link>{' '}
+        team
+      </Text>
+    </Stack>
+  )
+}
 
 function SelectLiftName() {
   const { currentWorkoutProps, oneRepMaxProps, settingsRef } = useStore((store) => store)
@@ -146,7 +195,7 @@ function WorksetPlates() {
   }, [platesForVisualBarbell])
 
   return (
-    <Stack color="white" py="5">
+    <Stack color="white" pt="5" pb="1">
       <Box>
         <Text textAlign="center">
           {worksetWeightFormat} {units}{' '}
@@ -169,12 +218,11 @@ function WorksetPlates() {
 }
 
 function BarbelPlatesVisual({ platesForVisualBarbell, barbellWeight, oneSideWeight }) {
-  // const [showPlatesVisual, setShowPlatesVisual] = React.useState(false)
   const { isOpen, onToggle } = useDisclosure()
 
   return (
     <>
-      <Stack isInline py="2" alignItems="center">
+      <Stack isInline alignItems="center" spacing={0}>
         <Checkbox isChecked={isOpen} size="sm" onChange={onToggle}>
           Show barbell
         </Checkbox>

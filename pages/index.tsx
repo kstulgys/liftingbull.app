@@ -12,11 +12,11 @@ function IndexPage() {
       <Stack maxW="6xl" width="full" mx="auto" minH="100vh" p="4" py="20">
         <Box maxW="4xl" width="full" pb="6">
           <Text lineHeight="none" fontFamily="inherit" fontSize="6xl" color="teal.400" fontWeight="bold">
-            RPEtify - Enjoy your workout.
+            RPEtify - Enjoy your workout
           </Text>
           <Box maxW="lg" width="full" pt="4">
             <Text fontFamily="inherit" fontSize="xl" color="teal.400">
-              A gym App that does all the calculations based on RPE (rate of perceived exertion) and much more.
+              A gym App that does all the calculations based on RPE (rate of perceived exertion) and much more
             </Text>
           </Box>
         </Box>
@@ -79,17 +79,35 @@ function IndexPage() {
             <ListItem display="flex" alignItems="center">
               <ListIcon as={FiCheckCircle} color="teal.400" fontSize="2xl" />
               <Box>
-                <Text>{`"Available plates" selection`}</Text>
+                <Text>Available plates selection</Text>
               </Box>
             </ListItem>
             <ListItem display="flex" alignItems="center">
               <ListIcon as={FiCheckCircle} color="teal.400" fontSize="2xl" />
               <Box>
-                <Text>Saves your settings so you can access it from any device</Text>
+                <Text>Access you training info from any device</Text>
               </Box>
             </ListItem>
+            <Stack pt={6}>
+              <Text>
+                If you have any questons, feel to email us at{' '}
+                <Link color="teal.400" isExternal href="mailto:team@thepowerbelt.com?subject=Hi there 👋">
+                  team@thepowerbelt.com
+                </Link>{' '}
+                we will be happy to help ❤️
+              </Text>
+            </Stack>
           </List>
         </Stack>
+      </Stack>
+      <Stack isInline py={2} justifyContent="center">
+        <Text color="white">
+          Made with ❤️ by{' '}
+          <Link color="teal.400" isExternal href="mailto:team@thepowerbelt.com?subject=Hi there 👋">
+            thepowerbelt
+          </Link>{' '}
+          team
+        </Text>
       </Stack>
     </Layout>
   )
