@@ -37,8 +37,9 @@ export function getWorksetWeight(rpe: number, reps: number, oneRM: number): numb
   return +(oneRM * lookupTable[rpe][reps]).toFixed(1)
 }
 
-export function getPlatesOnBar(weight: number, barbellWeight: number, plates: number[]): string {
+export function getPlatesOnBar(weight: number, barbellWeight: number, plates: number[]): { platesAsString: string; platesAsArray: any[] } {
   let oneSideWeight = +(weight / 2).toFixed(2)
+
   const result: string[] = plates.reduce((acc: string[], plate: number) => {
     const platesQuantity = Math.floor(oneSideWeight / plate)
     if (platesQuantity) {
@@ -46,14 +47,14 @@ export function getPlatesOnBar(weight: number, barbellWeight: number, plates: nu
       const item = `${plate}${platesQuantity > 1 ? 'x' + platesQuantity : ''}`
       return [...acc, item]
     }
-
     return acc
   }, [])
 
-  return result.reduce((acc, next, idx) => {
+  const platesAsString = result.reduce((acc, next, idx) => {
     if (idx === 0) return acc + next
     return acc + '/' + next
   }, '')
+  return { platesAsString, platesAsArray: result }
 }
 
 export function getRepsNumbers() {

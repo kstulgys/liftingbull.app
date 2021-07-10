@@ -13,6 +13,7 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  useDisclosure,
 } from '@chakra-ui/core'
 import Layout from '../components/Layout'
 import { useStore } from '../utils/store'
@@ -100,7 +101,6 @@ function SelectLiftParams() {
 
 function WorksetPlates() {
   const { oneRepMaxProps, currentWorkoutProps, units, plates } = useStore((store) => store)
-
   const oneRM = oneRepMaxProps.find((item) => item.shortName === currentWorkoutProps.shortName)
   const { weightKg, weightLbs } = oneRM
   const oneRMWeight = calculateOneRepMax({ weightKg, weightLbs, units, rpe: oneRM.rpe, reps: oneRM.reps })
@@ -108,19 +108,140 @@ function WorksetPlates() {
   const barbellWeight = units === 'kg' ? 20 : 44
   const worksetWeight = getWorksetWeight(rpe, reps, oneRMWeight)
   const currentPlates = units === 'kg' ? plates.kg : plates.lbs
-  const weightForPlates = worksetWeight - barbellWeight
-  const platesOnBar = getPlatesOnBar(weightForPlates, barbellWeight, currentPlates)
+  const weightForPlates = (units === 'kg' ? worksetWeight : Math.round(worksetWeight)) - barbellWeight
+  const { platesAsString, platesAsArray } = getPlatesOnBar(weightForPlates, barbellWeight, currentPlates)
   const worksetWeightFormat = units === 'kg' ? worksetWeight : Math.round(worksetWeight)
+
+  const platesForVisualBarbell = React.useMemo(() => {
+    return platesAsArray
+      .reduce((acc, next) => {
+        const isMultiplePlates = next.includes('x')
+        if (isMultiplePlates) {
+          const plate = next.split('x')
+          return [...acc, [+plate[0], +plate[1]]]
+        }
+        return [...acc, [+next]]
+      }, [])
+      .reverse()
+  }, [platesAsArray])
+
+  const oneSideWeight = React.useMemo(() => {
+    if (!platesForVisualBarbell) return 0
+    const weight = platesForVisualBarbell.reduce((acc, next) => {
+      if (typeof acc === 'undefined') {
+        if (next.length === 2) {
+          return next[0] * next[1]
+        } else {
+          return next[0]
+        }
+      }
+      if (next.length === 2) {
+        return acc + next[0] * next[1]
+      } else {
+        return acc + next[0]
+      }
+    }, undefined)
+
+    return weight
+  }, [platesForVisualBarbell])
 
   return (
     <Stack color="white" py="5">
       <Box>
         <Text textAlign="center">
-          {worksetWeightFormat} {units}
+          {worksetWeightFormat} {units}{' '}
+          <Box as="label" fontSize="xs">
+            total
+          </Box>
         </Text>
       </Box>
       <Box>
-        <Text textAlign="center">{platesOnBar}</Text>
+        <Text textAlign="center">
+          {platesAsString}{' '}
+          <Box as="label" fontSize="xs">
+            {oneSideWeight} one side
+          </Box>
+        </Text>
+      </Box>
+      <BarbelPlatesVisual platesForVisualBarbell={platesForVisualBarbell} barbellWeight={barbellWeight} oneSideWeight={oneSideWeight} />
+    </Stack>
+  )
+}
+
+function BarbelPlatesVisual({ platesForVisualBarbell, barbellWeight, oneSideWeight }) {
+  // const [showPlatesVisual, setShowPlatesVisual] = React.useState(false)
+  const { isOpen, onToggle } = useDisclosure()
+
+  return (
+    <>
+      <Stack isInline py="2" alignItems="center">
+        <Checkbox isChecked={isOpen} size="sm" onChange={onToggle}>
+          Show barbell
+        </Checkbox>
+      </Stack>
+      {isOpen && (
+        <Stack isInline alignItems="center" overflowX="auto" spacing={1}>
+          <Stack isInline spacing={1} alignItems="center">
+            {platesForVisualBarbell.map(([plate, multiplier], index) => {
+              if (multiplier) {
+                return Array(multiplier)
+                  .fill(null)
+                  .map((_, index) => {
+                    return <BarbellPlate plate={plate} key={`${index}-${multiplier}-${plate}`} index={index} />
+                  })
+              }
+              return <BarbellPlate plate={plate} key={index} index={index} />
+            })}
+          </Stack>
+          <Stack isInline justifyContent="center" position="relative" height={2} bg="gray.300" width="full">
+            <Box position="absolute" right={0} bottom={2}>
+              <Text fontSize="lg">
+                {oneSideWeight}{' '}
+                <Box as="label" fontSize="xs">
+                  x2 + {barbellWeight}
+                </Box>
+              </Text>
+            </Box>
+          </Stack>
+        </Stack>
+      )}
+    </>
+  )
+}
+
+const platesDefinitions = {
+  kg: {
+    25: { height: '6rem', color: 'red.500' },
+    20: { height: '5.5rem', color: 'blue.500' },
+    15: { height: '5rem', color: 'yellow.500' },
+    10: { height: '4.5rem', color: 'green.500' },
+    5: { height: '4rem', color: 'white' },
+    '2.5': { height: '3.75rem', color: 'purple.500' },
+    '1.25': { height: '3.5rem', color: 'pink.500' },
+    '0.5': { height: '3.25rem', color: 'red.500' },
+    '0.25': { height: '3rem', color: 'red.500' },
+  },
+  lbs: {
+    45: { height: '6rem', color: 'red.500' },
+    35: { height: '5.5rem', color: 'blue.500' },
+    25: { height: '5rem', color: 'yellow.500' },
+    10: { height: '4.5rem', color: 'green.500' },
+    5: { height: '4rem', color: 'white' },
+    '2.5': { height: '3.75rem', color: 'purple.500' },
+  },
+}
+
+function BarbellPlate({ plate, index }) {
+  const { units } = useStore((store) => store)
+  if (!units || !plate) return null
+  const { height, color } = platesDefinitions[units][plate]
+
+  return (
+    <Stack rounded="md" height={height} width={6} bg={color} justifyContent="center" alignItems="center">
+      <Box transform="rotate(-90deg)">
+        <Text m={0} fontSize="lg" fontWeight="semibold" color="gray.900" lineHeight="none">
+          {plate}
+        </Text>
       </Box>
     </Stack>
   )
@@ -188,12 +309,12 @@ function WarmupSetsBody() {
       <Stack fontSize="lg" color="white">
         {warmupSets.map(({ no, pct, reps }) => {
           const warmupWeight = Math.round((worksetWeight - barbellWeight) * pct)
-          const platesOnBar = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
+          const { platesAsString, platesAsArray } = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
           return (
             <Stack isInline key={no}>
               <Text width="8">{reps}</Text>
               <Text width="20">@{Math.round(pct * 100)}%</Text>
-              <Text>{platesOnBar}</Text>
+              <Text>{platesAsString}</Text>
             </Stack>
           )
         })}
@@ -211,12 +332,12 @@ function WarmupSetsBody() {
     <Stack fontSize="lg" color="white">
       {warmupSets.map(({ no, pct, reps }) => {
         const warmupWeight = Math.round((worksetWeight - barbellWeight) * pct)
-        const platesOnBar = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
+        const { platesAsString, platesAsArray } = getPlatesOnBar(warmupWeight, barbellWeight, currentPlates)
         return (
           <Stack isInline key={no}>
             <Text width="8">{reps}</Text>
             <Text width="20">@{Math.round(pct * 100)}%</Text>
-            <Text>{platesOnBar}</Text>
+            <Text>{platesAsString}</Text>
           </Stack>
         )
       })}
