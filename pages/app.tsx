@@ -70,7 +70,7 @@ function NeedHelpModal() {
       {isOpen && (
         <Stack>
           <Text color="white" fontSize="md">
-            If you have any questons, feel to email us at{' '}
+            If you have any questons, feel free to email us at{' '}
             <Link color="teal.400" isExternal href="mailto:team@thepowerbelt.com?subject=Hi there 👋">
               team@thepowerbelt.com
             </Link>{' '}
